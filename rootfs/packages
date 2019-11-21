@@ -1,0 +1,19 @@
+# text editors
+vim
+nano
+emacs-nox
+
+# build/dev tools
+build-essential
+kmod
+busybox
+
+# networking
+iproute2
+iputils-ping
+net-tools
+tftp
+ssh
+
+# misc
+bash-completion
