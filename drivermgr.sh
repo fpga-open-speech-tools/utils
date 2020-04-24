@@ -3,7 +3,7 @@ BASE_MODULES_PATH=/lib/modules
 VERBOSE=0
 
 function load() {
-    for module in $MODULES_PATH/*; do
+    for module in $MODULES_PATH/*.ko; do
         if [ $VERBOSE -eq 1 ]; then
             echo "loading kernel module: $module"
         fi
@@ -12,7 +12,7 @@ function load() {
 }
 
 function remove() {
-    for module in $MODULES_PATH/*; do
+    for module in $MODULES_PATH/*.ko; do
         if [ $VERBOSE -eq 1 ]; then
             echo "removing kernel module: $module"
         fi
