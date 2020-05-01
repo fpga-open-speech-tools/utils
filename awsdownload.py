@@ -90,24 +90,27 @@ def parseargs():
 
     # Add arguments for the directory and the bucket name
     required_args.add_argument('-d', '--directory', type=str, required=True,
-        help="S3 directory to download files from")
-    required_args.add_argument('-b', '--bucket', type=str, required=True,   
-        help="S3 bucket name")
+                               help="S3 directory to download files from")
+    required_args.add_argument('-b', '--bucket', type=str, required=True,
+                               help="S3 bucket name")
 
     # Create an explicit group for optional arguments so the required arguments print first
     optional_args = parser.add_argument_group('optional arguments')
 
     # Add optional arguments
-    optional_args.add_argument('-h', '--help', action='help', 
-        help="show this help message and exit")
+    optional_args.add_argument('-h', '--help', action='help',
+                               help="show this help message and exit")
     optional_args.add_argument('-v', '--verbose', action='store_true',
-        help="print verbose output", default=False)
-    optional_args.add_argument('--firmware-path', type=str, 
+                               help="print verbose output", default=False)
+    optional_args.add_argument(
+        '--firmware-path', type=str, default='/lib/firmware/',
         help="path where bitstreams and overlays get placed \
-        (default: /lib/firmware/)", default='/lib/firmware/')
-    optional_args.add_argument('--driver-path', type=str 
+            (default: /lib/firmware/)")
+
+    optional_args.add_argument(
+        '--driver-path', type=str, default='/lib/modules/',
         help="path prefix where kernel modules folder gets created \
-        (default: /lib/modules/)", default='/lib/modules/')
+            (default: /lib/modules/)")
 
     # Parse the arguments
     args = parser.parse_args()
@@ -154,13 +157,13 @@ def main(s3bucket, s3directory, firmware_path='/lib/firmware/',
     # Get all of the s3 objects that are in the desired bucket and directory.
     # The "directory" isn't really a directory, but a prefix in the object keys,
     # e.g. Key: some/directory/<actual_file>
-    # list_objects_v2 returns a big dictionary about the objects; the Contents 
+    # list_objects_v2 returns a big dictionary about the objects; the Contents
     # key is what contains the actual directory contents
     objects = client.list_objects_v2(
         Bucket=s3bucket, Prefix=s3directory)['Contents']
 
     # Get the keys for the bitstream (.rbf) and device tree overlay (.dtbo)
-    firmware_keys = [obj['Key'] for obj in objects 
+    firmware_keys = [obj['Key'] for obj in objects
                      if '.rbf' in obj['Key'] or '.dtbo' in obj['Key']]
 
     # Get the keys for the device drivers (.ko files)
@@ -186,15 +189,17 @@ def main(s3bucket, s3directory, firmware_path='/lib/firmware/',
 
     # Download the firmware files
     for key, filename in zip(firmware_keys, firmware_filenames):
+        if verbose:
+            print('Downloading file {}...', key)
         client.download_file(s3bucket, key, firmware_path + filename)
 
     # If the driver list isn't empty, download the drivers
     if driver_keys:
         for key, filename in zip(driver_keys, driver_filenames):
-            client.download_file(s3bucket, key, driver_path 
+            if verbose:
+                print('Downloading file {}...', key)
+            client.download_file(s3bucket, key, driver_path
                                  + driver_group_name + '/' + filename)
-
-    print('All files downloaded')
 
 
 if __name__ == "__main__":
