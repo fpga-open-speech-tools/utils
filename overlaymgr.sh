@@ -40,6 +40,7 @@
 
 CONFIGFS_PATH=/sys/kernel/config/device-tree/overlays
 VERBOSE=0
+POSITIONAL_ARGS=()
 
 # Load the device tree overlay
 #
@@ -85,7 +86,7 @@ function remove() {
 
 # Print verbose usage help
 function usage() {
-    echo "usage: overlaymgr [-h] [-v] <command> overlay"
+    short_usage
     echo
     echo "Load and remove device tree overlays."
     echo 
@@ -94,7 +95,7 @@ function usage() {
     echo "  remove          remove a device tree overlay"
     echo
     echo "positional arguments:"
-    echo "  overlay         the name of the overlay file to load/remove"
+    echo "  OVERLAY         the name of the overlay file to load/remove"
     echo 
     echo "optional arguments:"
     echo "  -h, --help      display this help text"
@@ -105,18 +106,19 @@ function usage() {
 #
 # Primarily for when user's invoke the script incorrectly.
 function short_usage() {
-    echo "usage: overlaymgr [-h] [-v] <command> overlay"
+    echo "usage: overlaymgr [-h] [-v] <COMMAND> OVERLAY"
 }
 
 
 # argument parsing
-for arg in "$@"; do
+while [[ "$#" -gt 0 ]]; do
+    arg="$1"
     case $arg in
-        -h | --help)
+        -h|--help)
         usage
         exit
         ;;
-        -v | --verbose)
+        -v|--verbose)
         VERBOSE=1
         # pop argument off the argument array "$@"
         shift
