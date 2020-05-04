@@ -13,9 +13,6 @@ s3bucket : str
 s3directory : str
     Name of the S3 directory  in `s3bucket` where the desired files are located
 
-firmware_path : str
-    Path where the bitstream and device tree overlay will be downloaded to
-
 driver_path : str
     Path prefix where the device drivers will be downloaded to; drivers are
     placed in a subdirectory of this path
@@ -35,19 +32,14 @@ with underscores instead of hyphens, e.g. sound_effects.rbf.
 
 The directory name can be given with or without a trailing slash.
 
-Putting downloaded files in non-default path locations will affect the shell 
-scripts that load the overlays and device drivers since they expect the files 
-to be in the default locations. Using non-default locations is primarily for
-debugging purposes. 
+The .dtbo and .rbf files need to be on the firmware search path, so they 
+will always be placed in /lib/firmware. If placing drivers in non-default path,
+users will need to supply that path as an argument to drivermgr.sh. 
 
-Examples
---------
+Example
+-------
 Download files for the Audio Mini sound effects project
 $ ./awsdownload.py -b nih-demos -d audiomini/sound-effects
-
-Download files for the Audio Mini passthrough project, and put them in
-non-default locations
-$ ./awsdownload.py -b nih-demos -d audiomini/passthrough --firmware_path ~/firmware
 
 Copyright
 ---------
@@ -74,7 +66,7 @@ import os
 from botocore.client import Config
 from botocore import UNSIGNED
 
-DEFAULT_FIRMWARE_PATH = '/lib/firmware/'
+FIRMWARE_PATH = '/lib/firmware/'
 DEFAULT_DRIVER_PATH = '/lib/modules/'
 
 
@@ -108,11 +100,6 @@ def parseargs():
     optional_args.add_argument('-v', '--verbose', action='store_true',
                                help="print verbose output", default=False)
     optional_args.add_argument(
-        '--firmware-path', type=str, default=DEFAULT_FIRMWARE_PATH,
-        help="path where bitstreams and overlays get placed \
-            (default: /lib/firmware/)")
-
-    optional_args.add_argument(
         '--driver-path', type=str, default=DEFAULT_DRIVER_PATH,
         help="path prefix where kernel modules folder gets created \
             (default: /lib/modules/)")
@@ -120,17 +107,14 @@ def parseargs():
     # Parse the arguments
     args = parser.parse_args()
 
-    # Ensure firmware and driver paths end in a trailing slash
-    if args.firmware_path[-1] != '/':
-        args.firmware_path += '/'
+    # Ensure driver path ends in a trailing slash
     if args.driver_path[-1] != '/':
         args.driver_path += '/'
 
     return args
 
 
-def main(s3bucket, s3directory, firmware_path=DEFAULT_FIRMWARE_PATH,
-         driver_path=DEFAULT_DRIVER_PATH, verbose=False):
+def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH, verbose=False):
     """
     Download files for an SoC FPGA project from AWS. 
 
@@ -144,9 +128,6 @@ def main(s3bucket, s3directory, firmware_path=DEFAULT_FIRMWARE_PATH,
 
     s3directory : str
         Name of the S3 directory  in `s3bucket` where the desired files are
-
-    firmware_path : str
-        Path where the bitstream and device tree overlay will be downloaded to
 
     driver_path : str
         Path prefix where the device drivers will be downloaded to; drivers are
@@ -196,8 +177,8 @@ def main(s3bucket, s3directory, firmware_path=DEFAULT_FIRMWARE_PATH,
     for key, filename in zip(firmware_keys, firmware_filenames):
         if verbose:
             print('Downloading file {} to {}...'.format(
-                filename, firmware_path + filename))
-        client.download_file(s3bucket, key, firmware_path + filename)
+                filename, FIRMWARE_PATH + filename))
+        client.download_file(s3bucket, key, FIRMWARE_PATH + filename)
 
     # If the driver list isn't empty, download the drivers
     if driver_keys:
@@ -211,5 +192,5 @@ def main(s3bucket, s3directory, firmware_path=DEFAULT_FIRMWARE_PATH,
 
 if __name__ == "__main__":
     args = parseargs()
-    main(args.bucket, args.directory, args.firmware_path, args.driver_path,
+    main(args.bucket, args.directory, args.driver_path,
          args.verbose)
