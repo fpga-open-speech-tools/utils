@@ -95,7 +95,7 @@ while [[ "$#" -gt 0 ]]; do
         usage
         exit
         ;;
-        --verbose)
+        -v|--verbose)
         VERBOSE=1
         # pop argument off the argument array
         shift
