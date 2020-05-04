@@ -102,6 +102,10 @@ while [[ "$#" -gt 0 ]]; do
         ;;
         --driver-path)
         MODULE_PATH_PREFIX="$2"
+        # if the string ends in a /, remove it
+        if [ "${MODULE_PATH_PREFIX: -1}" == "/" ]; then
+            MODULE_PATH_PREFIX="${MODULE_PATH_PREFIX:0:-1}"
+        fi
         # pop argument and value off the argument array
         shift 2
         ;;
