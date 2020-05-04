@@ -53,10 +53,12 @@ Copyright
 ---------
 Copyright 2020 Flat Earth Inc
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE 
-WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR 
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
-OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Trevor Vannoy, Tyler Davis
 Flat Earth Inc
@@ -97,7 +99,7 @@ def parseargs():
     required_args.add_argument('-b', '--bucket', type=str, required=True,
                                help="S3 bucket name")
 
-    # Create an explicit group for optional arguments so the required arguments print first
+    # Create a group for optional arguments so required arguments print first
     optional_args = parser.add_argument_group('optional arguments')
 
     # Add optional arguments
@@ -141,7 +143,7 @@ def main(s3bucket, s3directory, firmware_path=DEFAULT_FIRMWARE_PATH,
         Name of the S3 bucket
 
     s3directory : str
-        Name of the S3 directory  in `s3bucket` where the desired files are located
+        Name of the S3 directory  in `s3bucket` where the desired files are
 
     firmware_path : str
         Path where the bitstream and device tree overlay will be downloaded to
