@@ -29,8 +29,9 @@
 # Bozeman, MT 59718
 # support@flatearthinc.com
 
-BASE_MODULES_PATH=/lib/modules
+MODULE_PATH_PREFIX=/lib/modules
 VERBOSE=0
+POSITIONAL_ARGS=()
 
 # Load kernel modules
 #
@@ -58,27 +59,32 @@ function remove() {
 
 # Print verbose usage help
 function usage() {
-    echo "usage: drivermgr [-h] [-v] <command> directory"
+    short_usage
     echo
     echo "Load and remove kernel modules."
     echo 
     echo "commands:"
-    echo "  load            load kernel module(s)"
-    echo "  remove          remove kernel module(s)"
+    echo "  load                        load kernel module(s)"
+    echo "  remove                      remove kernel module(s)"
     echo
     echo "positional arguments:"
-    echo "  directory       directory name in /lib/modules/ that contains the modules to be loaded"
+    echo "  DIRECTORY                   directory name that contains the modules"
     echo 
     echo "optional arguments:"
-    echo "  -h, --help      display this help text"
-    echo "  -v, --verbose   print more details about what's going on"
+    echo "  -h, --help                  display this help text"
+    echo "  -v, --verbose               print more details about what's going on"
+    echo "  --driver-path DRIVER_PATH   path where drivers directory is located"
+    echo "                              (default: /lib/modules/)"
+    echo
+    echo "Kernel modules are required to be in a directory with the same name"
+    echo "as the \"directory\" argument (i.e. DRIVER_PATH/DIRECTORY)"
 }
 
 # Print brief usage help
 #
 # Primarily for when user's invoke the script incorrectly.
 function short_usage() {
-    echo "usage: drivermgr [-h] [-v] <command> directory"
+    echo "usage: drivermgr [-h] [-v] [--driver-path DRIVER_PATH] <COMMAND> DIRECTORY"
 }
 
 # argument parsing
@@ -88,10 +94,16 @@ for arg in "$@"; do
         usage
         exit
         ;;
-        -v | --verbose)
+        --verbose)
         VERBOSE=1
         # pop argument off the argument array "$@"
         shift
+        ;;
+        --driver-path)
+        # echo "driver path"
+        MODULE_PATH_PREFIX="$2"
+        # pop argument and value off the argument array
+        shift 2
         ;;
         --*)
         echo "Unrecognized argument: $arg" 1>&2
@@ -122,7 +134,7 @@ fi
 
 # grab command and modules directory name from the positional arguments
 COMMAND=${POSITIONAL_ARGS[0]}
-MODULES_PATH=$BASE_MODULES_PATH/${POSITIONAL_ARGS[1]}
+MODULES_PATH=$MODULE_PATH_PREFIX/${POSITIONAL_ARGS[1]}
 
 # run the command
 case $COMMAND in
