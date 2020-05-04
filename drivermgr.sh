@@ -88,19 +88,19 @@ function short_usage() {
 }
 
 # argument parsing
-for arg in "$@"; do
+while [[ "$#" -gt 0 ]]; do
+    arg="$1"
     case $arg in
-        -h | --help)
+        -h|--help)
         usage
         exit
         ;;
         --verbose)
         VERBOSE=1
-        # pop argument off the argument array "$@"
+        # pop argument off the argument array
         shift
         ;;
         --driver-path)
-        # echo "driver path"
         MODULE_PATH_PREFIX="$2"
         # pop argument and value off the argument array
         shift 2
@@ -114,7 +114,7 @@ for arg in "$@"; do
         *)
         # add positional argument to positional arguments array for later
         POSITIONAL_ARGS+=("$1")
-        # pop argument off the argument array "$@"
+        # pop argument off the argument array
         shift
         ;;
     esac
