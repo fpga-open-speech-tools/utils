@@ -37,24 +37,36 @@ POSITIONAL_ARGS=()
 #
 # This loads all modules in the user-provided directory
 function load() {
-    for module in $MODULES_PATH/*.ko; do
-        if [ $VERBOSE -eq 1 ]; then
-            echo "loading kernel module: $module"
-        fi
-        insmod $module
-    done
+    if [ -d $MODULES_PATH ]; then
+        for module in $MODULES_PATH/*.ko; do
+            if [ $VERBOSE -eq 1 ]; then
+                echo "loading kernel module: $module"
+            fi
+            insmod $module
+        done
+    else
+        error_msg="$MODULES_PATH doesn't exist; either there aren't any drivers"
+        error_msg+=" associated with the project, or the directory is incorrect"
+        echo "$error_msg" 1>&2
+    fi
 }
 
 # Remove kernel modules
 #
 # This removes all modules in the user-provided directory
 function remove() {
-    for module in $MODULES_PATH/*.ko; do
-        if [ $VERBOSE -eq 1 ]; then
-            echo "removing kernel module: $module"
-        fi
-        rmmod $module
-    done
+    if [ -d $MODULES_PATH ]; then
+        for module in $MODULES_PATH/*.ko; do
+            if [ $VERBOSE -eq 1 ]; then
+                echo "removing kernel module: $module"
+            fi
+            rmmod $module
+        done
+    else
+        error_msg="$MODULES_PATH doesn't exist; either there aren't any drivers"
+        error_msg+=" associated with the project, or the directory is incorrect"
+        echo "$error_msg" 1>&2
+    fi
 }
 
 # Print verbose usage help
