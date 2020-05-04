@@ -72,6 +72,8 @@ import os
 from botocore.client import Config
 from botocore import UNSIGNED
 
+DEFAULT_FIRMWARE_PATH = '/lib/firmware/'
+DEFAULT_DRIVER_PATH = '/lib/modules/'
 
 def parseargs():
     """
@@ -103,12 +105,12 @@ def parseargs():
     optional_args.add_argument('-v', '--verbose', action='store_true',
                                help="print verbose output", default=False)
     optional_args.add_argument(
-        '--firmware-path', type=str, default='/lib/firmware/',
+        '--firmware-path', type=str, default=DEFAULT_FIRMWARE_PATH,
         help="path where bitstreams and overlays get placed \
             (default: /lib/firmware/)")
 
     optional_args.add_argument(
-        '--driver-path', type=str, default='/lib/modules/',
+        '--driver-path', type=str, default=DEFAULT_DRIVER_PATH,
         help="path prefix where kernel modules folder gets created \
             (default: /lib/modules/)")
 
@@ -124,8 +126,8 @@ def parseargs():
     return args
 
 
-def main(s3bucket, s3directory, firmware_path='/lib/firmware/',
-         driver_path='/lib/modules/', verbose=False):
+def main(s3bucket, s3directory, firmware_path=DEFAULT_FIRMWARE_PATH,
+         driver_path=DEFAULT_DRIVER_PATH, verbose=False):
     """
     Download files for an SoC FPGA project from AWS. 
 
@@ -190,14 +192,14 @@ def main(s3bucket, s3directory, firmware_path='/lib/firmware/',
     # Download the firmware files
     for key, filename in zip(firmware_keys, firmware_filenames):
         if verbose:
-            print('Downloading file {}...', key)
+            print('Downloading file {}...'.format(key))
         client.download_file(s3bucket, key, firmware_path + filename)
 
     # If the driver list isn't empty, download the drivers
     if driver_keys:
         for key, filename in zip(driver_keys, driver_filenames):
             if verbose:
-                print('Downloading file {}...', key)
+                print('Downloading file {}...'.format(key))
             client.download_file(s3bucket, key, driver_path
                                  + driver_group_name + '/' + filename)
 
