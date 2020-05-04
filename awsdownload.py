@@ -75,6 +75,7 @@ from botocore import UNSIGNED
 DEFAULT_FIRMWARE_PATH = '/lib/firmware/'
 DEFAULT_DRIVER_PATH = '/lib/modules/'
 
+
 def parseargs():
     """
     Parse command-line arguments.
@@ -192,14 +193,16 @@ def main(s3bucket, s3directory, firmware_path=DEFAULT_FIRMWARE_PATH,
     # Download the firmware files
     for key, filename in zip(firmware_keys, firmware_filenames):
         if verbose:
-            print('Downloading file {}...'.format(key))
+            print('Downloading file {} to {}...'.format(
+                filename, firmware_path + filename))
         client.download_file(s3bucket, key, firmware_path + filename)
 
     # If the driver list isn't empty, download the drivers
     if driver_keys:
         for key, filename in zip(driver_keys, driver_filenames):
             if verbose:
-                print('Downloading file {}...'.format(key))
+                print('Downloading file {} to {}...'.format(
+                    filename, driver_path + driver_group_name + '/' + filename))
             client.download_file(s3bucket, key, driver_path
                                  + driver_group_name + '/' + filename)
 
