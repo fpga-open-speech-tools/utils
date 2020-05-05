@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# overlaymgr.sh
+# overlaymgr
 #
 # Load and remove device tree overlays.
 #
