@@ -42,7 +42,6 @@ COMMAND=""
 OVERLAY_NAME=""
 readonly CONFIGFS_PATH=/sys/kernel/config/device-tree/overlays
 VERBOSE=0
-POSITIONAL_ARGS=()
 
 # Print brief usage help
 #
@@ -91,7 +90,6 @@ function usage() {
 # -------
 #   VERBOSE
 #   MODULE_PATH_PREFIX
-#   POSITIONAL_ARGS
 #   COMMAND
 #   MODULES_PATH
 #
@@ -99,6 +97,8 @@ function usage() {
 # ---------
 #   Command-line parameters "$@"
 function parse_args() {
+  local positional_args
+
   while [[ "$#" -gt 0 ]]; do
     case "$1" in
       -h|--help)
@@ -118,18 +118,18 @@ function parse_args() {
         ;;
       *)
         # add positional argument to positional arguments array for later
-        POSITIONAL_ARGS+=("$1")
+        positional_args+=("$1")
         # pop argument off the argument array "$@"
         shift
         ;;
     esac
   done
 
-  if [[ "${#POSITIONAL_ARGS[*]}" -eq 0 ]]; then
+  if [[ "${#positional_args[*]}" -eq 0 ]]; then
     # print help when no arguments are supplied
     usage
     exit 1
-  elif [[ "${#POSITIONAL_ARGS[*]}" -ne 2 ]]; then
+  elif [[ "${#positional_args[*]}" -ne 2 ]]; then
     # make sure the user supplied two positional arguments
     echo "Incorrect number of positional arguments." 1>&2
     echo
@@ -138,8 +138,12 @@ function parse_args() {
   fi
 
   # grab command and overlay name from the positional arguments
-  COMMAND="${POSITIONAL_ARGS[0]}"
-  OVERLAY_NAME="${POSITIONAL_ARGS[1]}"
+  COMMAND="${positional_args[0]}"
+  OVERLAY_NAME="${positional_args[1]}"
+
+  readonly VERBOSE
+  readonly COMMAND
+  readonly OVERLAY_NAME
 }
 
 # Load the device tree overlay
