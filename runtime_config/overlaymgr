@@ -174,7 +174,7 @@ function load() {
     echo
   fi
   # load overlay by echoing the overlay file name to the path property file
-  (echo "${OVERLAY_NAME}".dtbo > "${CONFIGFS_PATH}"/"${OVERLAY_NAME}"/path)
+  eval echo "${OVERLAY_NAME}".dtbo > "${CONFIGFS_PATH}"/"${OVERLAY_NAME}"/path
 }
 
 # Remove the device tree overlay.
