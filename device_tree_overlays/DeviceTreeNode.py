@@ -50,7 +50,7 @@ class DeviceTreeNode():
         s += self.name + ' {\n'
         if self.compatible is not None:
             # TODO: make tab size a variable
-            s += 4*' ' + 'compatible = "{}";\n'.format(self.compatible).ljust(4)
+            s += 4*' ' + 'compatible = "{}";\n'.format(self.compatible)
 
         for child in self._children:
             s += 4*' ' + str(child).replace('\n', '\n' + 4*' ') + '\n'
