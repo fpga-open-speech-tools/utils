@@ -23,7 +23,7 @@ class AbstractNode(ABC):
         # we are overwriting the children list, so start with an empty list
         self._children = []
 
-        # TODO: a single DeviceTreeNode isn't iterable, so this raises an exception unless we explicitly pass in children as a list
+        # TODO: a single AbstractNode isn't iterable, so this raises an exception unless we explicitly pass in children as a list
         for child in children:
             if isinstance(child, AbstractNode):
                 child.parent = self
@@ -46,16 +46,24 @@ class AbstractNode(ABC):
 
     def __str__(self):
         s = ''
-        if self.label is not None:
-            s += self.label + ': '
-        s += self.name + ' {\n'
+
+        # XXX: maybe we could handle the base device tree references in a cleaner way than just checking if the node doesn't have a parent. Just because a node doesn't have a parent doesn't mean that the node is being inserted at a label in the base device tree. The node could need to be inserted into the root of the base device tree, for example. 
+        if self.parent is None:
+            # if the node doesn't have a parent, reference a base device tree label for tree insertion
+
+            # TODO: name is a required argument, so I'm using it for the label here, but maybe it would make more sense to use label instead? But labels aren't required in general. 
+            s += '&' + self.name + ' {\n'
+        else:
+            # if the node has a parent, we don't need to reference a label in the base device tree
+            if self.label is not None:
+                s += self.label + ': '
+            s += self.name + ' {\n'
 
         s += self._print_properties()
 
         for child in self._children:
             s += 4*' ' + str(child).replace('\n', '\n' + 4*' ') + '\n'
 
-        # TODO: From a subclass, I'd like to call the base class' __str__ method first, then the subclass' __str__ method would fill in the rest of the details that the base class doesn't know about. However, this ending brace will mess that up...
         s += '};'
 
 
