@@ -18,10 +18,10 @@ class TestNode(unittest.TestCase):
     def test_one_child_node(self):
         expected = (
             '&i2c {\n'
-            '   compatible = "dev,i2c";\n'
-            '   adc0: adc {\n'
-            '       compatible = "dev,adc";\n'
-            '   };\n'
+            '    compatible = "dev,i2c";\n'
+            '    adc0: adc {\n'
+            '        compatible = "dev,adc";\n'
+            '    };\n'
             '};'
         )
 
