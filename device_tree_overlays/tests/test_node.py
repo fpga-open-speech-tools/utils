@@ -1,5 +1,4 @@
 import unittest
-import textwrap
 
 from dtogen.node import Node
 
