@@ -17,6 +17,9 @@ driver_path : str
     Path prefix where the device drivers will be downloaded to; drivers are
     placed in a subdirectory of this path
 
+json_path : str
+    Where to put the UI.json and Linker.json files
+
 verbose : bool
     Print verbose output
 
@@ -68,6 +71,7 @@ from botocore import UNSIGNED
 
 FIRMWARE_PATH = '/lib/firmware/'
 DEFAULT_DRIVER_PATH = '/lib/modules/'
+DEFAULT_JSON_PATH = '../config/'
 
 
 def parseargs():
@@ -102,19 +106,28 @@ def parseargs():
     optional_args.add_argument(
         '--driver-path', type=str, default=DEFAULT_DRIVER_PATH,
         help="path prefix where kernel modules folder gets created \
-            (default: /lib/modules/)")
+            (default: " + DEFAULT_DRIVER_PATH + ")"
+    )
+    optional_args.add_argument(
+        '--json-path', type=str, default=DEFAULT_JSON_PATH,
+        help="where to put the UI.json and Linker.json config files \
+            (default: " + DEFAULT_JSON_PATH + ")"
+    )
 
     # Parse the arguments
     args = parser.parse_args()
 
-    # Ensure driver path ends in a trailing slash
+    # Ensure paths ends in a trailing slash
     if args.driver_path[-1] != '/':
         args.driver_path += '/'
+    if args.json_path[-1] != '/':
+        args.json_path += '/'
 
     return args
 
 
-def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH, verbose=False):
+def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
+         json_path=DEFAULT_JSON_PATH, verbose=False):
     """
     Download files for an SoC FPGA project from AWS. 
 
@@ -156,6 +169,10 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH, verbose=False):
     # If no drivers are in the s3 "directory", this list will be empty
     driver_keys = [obj['Key'] for obj in objects if '.ko' in obj['Key']]
 
+    # Get the keys for the UI.json and Linker.json config files
+    # It's possible that a project will not have json config files
+    json_keys = [obj['Key'] for obj in objects if '.json' in obj['Key']]
+
     # Get the firmware filenames (the part of the key after the last slash)
     firmware_filenames = [key.split('/')[-1] for key in firmware_keys]
 
@@ -173,6 +190,15 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH, verbose=False):
         # Get the driver filenames
         driver_filenames = [key.split('/')[-1] for key in driver_keys]
 
+    # If there are json config files
+    if json_keys:
+        # Create a config directory if it doesn't already exist
+        if not os.path.isdir(json_path):
+            os.mkdir(json_path)
+
+        # Get the json filenames
+        json_filenames = [key.split('/')[-1] for key in json_keys]
+
     # Download the firmware files
     for key, filename in zip(firmware_keys, firmware_filenames):
         if verbose:
@@ -189,8 +215,16 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH, verbose=False):
             client.download_file(s3bucket, key, driver_path
                                  + driver_group_name + '/' + filename)
 
+    # If there json config files, download them
+    if json_keys:
+        for key, filename in zip(json_keys, json_filenames):
+            if verbose:
+                print('Downloading file {} to {}...'.format(
+                    filename, json_path + '/' + filename))
+            client.download_file(s3bucket, key, json_path + '/' + filename)
+
 
 if __name__ == "__main__":
     args = parseargs()
     main(args.bucket, args.directory, args.driver_path,
-         args.verbose)
+         args.json_path, args.verbose)
