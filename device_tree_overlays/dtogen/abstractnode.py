@@ -1,18 +1,18 @@
 from abc import ABC, abstractmethod
 
 class AbstractNode(ABC):
-    def __init__(self, name, label=None, parent=None, children=None):
+    def __init__(self, name, label=None, parent=None, children=[]):
         self.name = name
         self.label = label
         self.parent = parent
 
-
-        if children is None:
-            self._children = []
-        else:
-            # TODO: check if children are valid objects then add to the list
-            #       it'd be nice to not repeat this type checking code everywhere
-            pass
+        self._children = []
+        if children:
+            # make sure children is a list
+            if not isinstance(children, list):
+                children = [children]
+            
+            self.add_children(*children)
 
     @property
     def children(self):
@@ -23,17 +23,15 @@ class AbstractNode(ABC):
         # we are overwriting the children list, so start with an empty list
         self._children = []
 
-        # TODO: a single AbstractNode isn't iterable, so this raises an exception unless we explicitly pass in children as a list
-        for child in children:
-            if isinstance(child, AbstractNode):
-                child.parent = self
-                self._children.append(child)
-            else:
-                raise TypeError("child is not a device tree node object")
+        # make sure children is a list
+        if not isinstance(children, list):
+            children = [children]
+
+        self.add_children(*children)
 
     # NOTE: instead of having this method, we could instead make users call device_tree_node.children.append(); I'm not sure which way is preferable. 
-    def add_children(self, children):
-        for child in children:
+    def add_children(self, *args):
+        for child in args:
             if isinstance(child, AbstractNode):
                 child.parent = self
                 self._children.append(child)
