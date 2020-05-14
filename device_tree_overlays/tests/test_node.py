@@ -3,55 +3,52 @@ import unittest
 from dtogen.node import Node
 
 
+# TODO: add more tests to test the constructor (e.g. add children/parents in the constructor)
 class TestNode(unittest.TestCase):
+    def setUp(self):
+        self.parent = Node(name='parent', compatible='parent')
+        self.child0 = Node(name='child', label='child0', compatible='child')
+        self.child1 = Node(name='child', label='child1', compatible='child')
+
     def test_top_level_node(self):
         expected = (
-            '&name {\n'
-            '    compatible = "dev,test";\n'
+            '&parent {\n'
+            '    compatible = "parent";\n'
             '};'
         )
 
-        n = Node(name='name', label='label', compatible='dev,test')
-
-        self.assertEqual(expected, str(n))
+        self.assertEqual(expected, str(self.parent))
 
     def test_one_child_node(self):
         expected = (
-            '&i2c {\n'
-            '    compatible = "dev,i2c";\n'
-            '    adc0: adc {\n'
-            '        compatible = "dev,adc";\n'
+            '&parent {\n'
+            '    compatible = "parent";\n'
+            '    child0: child {\n'
+            '        compatible = "child";\n'
             '    };\n'
             '};'
         )
 
-        i2c = Node(name='i2c', compatible='dev,i2c')
-        adc0 = Node(name='adc', label='adc0', compatible='dev,adc')
+        self.parent.children = self.child0
 
-        i2c.children = adc0
-
-        self.assertEqual(expected, str(i2c))
+        self.assertEqual(expected, str(self.parent))
 
     def test_two_child_nodes(self):
         expected = (
-            '&i2c {\n'
-            '    compatible = "dev,i2c";\n'
-            '    adc0: adc {\n'
-            '        compatible = "dev,adc";\n'
+            '&parent {\n'
+            '    compatible = "parent";\n'
+            '    child0: child {\n'
+            '        compatible = "child";\n'
             '    };\n'
-            '    eeprom0: eeprom {\n'
-            '        compatible = "dev,eeprom";\n'
+            '    child1: child {\n'
+            '        compatible = "child";\n'
             '    };\n'
             '};'
         )
 
-        i2c = Node(name='i2c', compatible='dev,i2c')
-        adc0 = Node(name='adc', label='adc0', compatible='dev,adc')
-        eeprom0 = Node(name='eeprom', label='eeprom0', compatible='dev,eeprom')
+        self.parent.children = [self.child0, self.child1]
 
-        i2c.children = [adc0, eeprom0]
-
-        self.assertEqual(expected, str(i2c))
+        self.assertEqual(expected, str(self.parent))
 
     def test_nested_child_nodes(self):
         expected = (
@@ -66,14 +63,29 @@ class TestNode(unittest.TestCase):
             '};'
         )
 
-        parent = Node(name='parent', compatible='parent')
-        child0 = Node(name='child', label='child0', compatible='child')
-        child1 = Node(name='child', label='child1', compatible='child')
+        # assigning to the children property should work whether or not we make
+        # a single node into a list or not
+        self.parent.children = self.child0
+        self.child0.children = [self.child1]
 
-        parent.children = [child0]
-        child0.children = [child1]
+        self.assertEqual(expected, str(self.parent))
 
-        self.assertEqual(expected, str(parent))
+    def test_add_children(self):
+        expected = (
+            '&parent {\n'
+            '    compatible = "parent";\n'
+            '    child0: child {\n'
+            '        compatible = "child";\n'
+            '    };\n'
+            '    child1: child {\n'
+            '        compatible = "child";\n'
+            '    };\n'
+            '};'
+        )
+
+        self.parent.add_children(self.child0, self.child1)
+
+        self.assertEqual(expected, str(self.parent))
 
 
 if __name__ == "__main__":
