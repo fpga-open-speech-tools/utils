@@ -17,8 +17,8 @@ driver_path : str
     Path prefix where the device drivers will be downloaded to; drivers are
     placed in a subdirectory of this path
 
-json_path : str
-    Where to put the UI.json and Linker.json files
+config_path : str
+    Where to put the UI.json and Linker.json config files
 
 verbose : bool
     Print verbose output
@@ -66,12 +66,29 @@ import boto3
 import sys
 import argparse
 import os
+import json
+# from progress.bar import IncrementalBar
+from collections import namedtuple
 from botocore.client import Config
 from botocore import UNSIGNED
 
 FIRMWARE_PATH = '/lib/firmware/'
 DEFAULT_DRIVER_PATH = '/lib/modules/'
-DEFAULT_JSON_PATH = '../config/'
+DEFAULT_CONFIG_PATH = '../config/'
+FIRMWARE_EXTENSIONS = ('.rbf', '.dtbo')
+DRIVER_EXTENSIONS = ('.ko')
+CONFIG_EXTENSIONS = ('.json')
+
+S3Files = namedtuple('S3Files', ['names', 'keys', 'sizes'])
+
+bytes_downloaded = 0
+total_download_size = 0
+percent_downloaded = 0
+project_name = ''
+
+# progress_bar = IncrementalBar('Downloading', max=100)
+
+progress_file = open('../tmp/progress.json', 'w')
 
 
 def parseargs():
@@ -83,6 +100,7 @@ def parseargs():
     args : Namespace
         Object containing the parsed arguments
     """
+
     # Create the argument parser
     parser = argparse.ArgumentParser(add_help=False)
 
@@ -109,9 +127,9 @@ def parseargs():
             (default: " + DEFAULT_DRIVER_PATH + ")"
     )
     optional_args.add_argument(
-        '--json-path', type=str, default=DEFAULT_JSON_PATH,
+        '--config-path', type=str, default=DEFAULT_CONFIG_PATH,
         help="where to put the UI.json and Linker.json config files \
-            (default: " + DEFAULT_JSON_PATH + ")"
+            (default: " + DEFAULT_CONFIG_PATH + ")"
     )
 
     # Parse the arguments
@@ -120,14 +138,67 @@ def parseargs():
     # Ensure paths ends in a trailing slash
     if args.driver_path[-1] != '/':
         args.driver_path += '/'
-    if args.json_path[-1] != '/':
-        args.json_path += '/'
+    if args.config_path[-1] != '/':
+        args.config_path += '/'
 
     return args
 
 
+def _download_progress(bytes_transferred):
+    global bytes_downloaded
+    global total_download_size
+    global progress_bar
+    global project_name
+    global progress_file
+
+    # print(bytes_transferred)
+    bytes_downloaded += bytes_transferred
+    percent_downloaded = int(bytes_downloaded/total_download_size * 100)
+    # print(percent_downloaded)
+    # progress_bar.goto(percent_downloaded)
+    progress_status = {'name': project_name,
+                       'progress': percent_downloaded, 'status': ''}
+    # json.dump(progress_status, progress_file)
+    # print(json.dumps(progress_status))
+
+
+def _get_file_info(s3objects, file_extensions):
+    """
+    Get information about files in an s3 objects list.
+
+    Given a list of s3 objects, this function extracts the key, filename, 
+    and file size for each file that ends in an extension in `file_extensions`
+
+    Parameters
+    ----------
+    s3objects: list
+        List of dictionaries return by boto3's download_file()
+
+    file_extensions: tuple
+        File extensions to match keys against
+    """
+    # Get firmware keys that end with any extension in file_extensions
+    keys = tuple(obj['Key'] for obj in s3objects
+                 if obj['Key'].endswith(file_extensions))
+
+    # If no keys matching file_extensions were found, exit early
+    if not keys:
+        return None
+
+    # Get firmware filenames (the part of the key after the last slash)
+    # A typical key will be '<device name>/<project name>/<file name>'
+    names = tuple(key.split('/')[-1] for key in keys)
+
+    # Get file sizes for all keys that end with an extension in file_extensions
+    sizes = tuple(obj['Size'] for obj in s3objects
+                  if obj['Key'].endswith(file_extensions))
+
+    # Pack everything into a S3Files named tuple
+    return S3Files(names=names, keys=keys, sizes=sizes)
+
+
 def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
-         json_path=DEFAULT_JSON_PATH, verbose=False):
+         config_path=DEFAULT_CONFIG_PATH, verbose=False):
     """
     Download files for an SoC FPGA project from AWS. 
 
@@ -146,9 +217,15 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
         Path prefix where the device drivers will be downloaded to; drivers are
         placed in a subdirectory of this path
 
+    config_path : str
+        Where to put the UI.json and Linker.json config files
+
     verbose : bool
         Print verbose output
     """
+    project_name = s3directory.split('/')[-1].replace('-', '_')
+    global total_download_size
+
     # Create an s3 client that doesn't need/use aws credentials
     client = boto3.client('s3', region_name='us-west-2',
                           config=Config(signature_version=UNSIGNED))
@@ -161,70 +238,65 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
     objects = client.list_objects_v2(
         Bucket=s3bucket, Prefix=s3directory)['Contents']
 
-    # Get the keys for the bitstream (.rbf) and device tree overlay (.dtbo)
-    firmware_keys = [obj['Key'] for obj in objects
-                     if '.rbf' in obj['Key'] or '.dtbo' in obj['Key']]
+    # Get info about the firmware files in the s3 directory
+    firmware_files = _get_file_info(objects, FIRMWARE_EXTENSIONS)
 
-    # Get the keys for the device drivers (.ko files)
-    # If no drivers are in the s3 "directory", this list will be empty
-    driver_keys = [obj['Key'] for obj in objects if '.ko' in obj['Key']]
+    # Kill the program if the s3 directory doesn't have firmware files
+    if firmware_files is None:
+        print("The s3 directory {} does not contain an overlay".format(
+            s3directory), file=sys.stderr)
+        exit(1)
 
-    # Get the keys for the UI.json and Linker.json config files
-    # It's possible that a project will not have json config files
-    json_keys = [obj['Key'] for obj in objects if '.json' in obj['Key']]
+    total_download_size = sum(firmware_files.sizes)
 
-    # Get the firmware filenames (the part of the key after the last slash)
-    firmware_filenames = [key.split('/')[-1] for key in firmware_keys]
+    # Get info about any driver files in the s3 directory
+    driver_files = _get_file_info(objects, DRIVER_EXTENSIONS)
 
-    # If the driver list isn't empty
-    if driver_keys:
-        # Get the project name that these drivers belong to. By convention,
-        # this should be the same as the firmware file names (without the
-        # file extension).
-        driver_group_name = firmware_filenames[0].split('.')[0]
-
+    if driver_files:
         # Create a directory for the drivers if one doesn't already exist
-        if not os.path.isdir(driver_path + driver_group_name):
-            os.mkdir(driver_path + driver_group_name)
+        if not os.path.isdir(driver_path + project_name):
+            os.mkdir(driver_path + project_name)
 
-        # Get the driver filenames
-        driver_filenames = [key.split('/')[-1] for key in driver_keys]
+        total_download_size += sum(driver_files.sizes)
 
-    # If there are json config files
-    if json_keys:
-        # Create a config directory if it doesn't already exist
-        if not os.path.isdir(json_path):
-            os.mkdir(json_path)
+    # Get info about any config files in the s3 directory
+    config_files = _get_file_info(objects, CONFIG_EXTENSIONS)
 
-        # Get the json filenames
-        json_filenames = [key.split('/')[-1] for key in json_keys]
+    if config_files:
+        # Create a directory for the config files if one doesn't already exist
+        if not os.path.isdir(config_path):
+            os.mkdir(config_path)
+
+        total_download_size += sum(config_files.sizes)
 
     # Download the firmware files
-    for key, filename in zip(firmware_keys, firmware_filenames):
+    for (key, filename) in zip(firmware_files.keys, firmware_files.names):
         if verbose:
             print('Downloading file {} to {}...'.format(
                 filename, FIRMWARE_PATH + filename))
-        client.download_file(s3bucket, key, FIRMWARE_PATH + filename)
+        client.download_file(s3bucket, key, FIRMWARE_PATH + filename,
+                             Callback=_download_progress)
 
-    # If the driver list isn't empty, download the drivers
-    if driver_keys:
-        for key, filename in zip(driver_keys, driver_filenames):
+    # If there are driver files, download them
+    if driver_files:
+        for key, filename in zip(driver_files.keys, driver_files.names):
             if verbose:
                 print('Downloading file {} to {}...'.format(
-                    filename, driver_path + driver_group_name + '/' + filename))
-            client.download_file(s3bucket, key, driver_path
-                                 + driver_group_name + '/' + filename)
+                    filename, driver_path + project_name + '/' + filename))
+            client.download_file(s3bucket, key, driver_path + project_name
+                                 + '/' + filename, Callback=_download_progress)
 
-    # If there json config files, download them
-    if json_keys:
-        for key, filename in zip(json_keys, json_filenames):
+    # If there are config files, download them
+    if config_files:
+        for key, filename in zip(config_files.keys, config_files.names):
             if verbose:
                 print('Downloading file {} to {}...'.format(
-                    filename, json_path + '/' + filename))
-            client.download_file(s3bucket, key, json_path + '/' + filename)
+                    filename, config_path + filename))
+            client.download_file(s3bucket, key, config_path + filename,
+                                 Callback=_download_progress)
 
 
 if __name__ == "__main__":
     args = parseargs()
     main(args.bucket, args.directory, args.driver_path,
-         args.json_path, args.verbose)
+         args.config_path, args.verbose)
