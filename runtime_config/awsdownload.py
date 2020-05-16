@@ -67,7 +67,7 @@ import sys
 import argparse
 import os
 import json
-# from progress.bar import IncrementalBar
+from tqdm import tqdm
 from collections import namedtuple
 from botocore.client import Config
 from botocore import UNSIGNED
@@ -81,14 +81,39 @@ CONFIG_EXTENSIONS = ('.json')
 
 S3Files = namedtuple('S3Files', ['names', 'keys', 'sizes'])
 
-bytes_downloaded = 0
-total_download_size = 0
-percent_downloaded = 0
-project_name = ''
 
-# progress_bar = IncrementalBar('Downloading', max=100)
+class _ProgressMonitor(object):
+    def __init__(self, s3directory, total_download_size, show_json=False, show_bar=False):
+        self.s3directory = s3directory
+        self.total_download_size = total_download_size
+        self.show_json = show_json
+        self.show_bar = show_bar
+        self.status = ""
+        self._bytes_received = 0
+        self._percent_downloaded = 0
+        self._json_status_message = {
+            "name": self.s3directory,
+            "progress": 0,
+            "status": ""
+        }
 
-progress_file = open('../tmp/progress.json', 'w')
+        if self.show_bar:
+            self.progress_bar = tqdm(desc="Downloading", total=self.total_download_size, bar_format='{l_bar}{bar}| {n_fmt}B/{total_fmt}B [{elapsed}]', mininterval=0.05, unit_scale=True)
+        else:
+            self.progress_bar = None
+
+    def __call__(self, bytes_received):
+        self._bytes_received += bytes_received
+        self._percent_downloaded = (
+            int(self._bytes_received / self.total_download_size * 100)
+        )
+        self._json_status_message['progress'] = self._percent_downloaded
+        self._json_status_message['status'] = self.status
+
+        if self.show_json:
+            tqdm.write(json.dumps(self._json_status_message))
+        if self.show_bar:
+            self.progress_bar.update(bytes_received)
 
 
 def parseargs():
@@ -131,6 +156,11 @@ def parseargs():
         help="where to put the UI.json and Linker.json config files \
             (default: " + DEFAULT_CONFIG_PATH + ")"
     )
+    optional_args.add_argument('-p', '--progress', action='append',
+        help="progress monitoring; 'bar' displays a progress bar, and 'json' \
+            displays progress in json format; multiple arguments can be given",
+        choices=['bar', 'json'], default=[]
+    )
 
     # Parse the arguments
     args = parser.parse_args()
@@ -143,23 +173,6 @@ def parseargs():
 
     return args
 
-
-def _download_progress(bytes_transferred):
-    global bytes_downloaded
-    global total_download_size
-    global progress_bar
-    global project_name
-    global progress_file
-
-    # print(bytes_transferred)
-    bytes_downloaded += bytes_transferred
-    percent_downloaded = int(bytes_downloaded/total_download_size * 100)
-    # print(percent_downloaded)
-    # progress_bar.goto(percent_downloaded)
-    progress_status = {'name': project_name,
-                       'progress': percent_downloaded, 'status': ''}
-    # json.dump(progress_status, progress_file)
-    # print(json.dumps(progress_status))
 
 
 def _get_file_info(s3objects, file_extensions):
@@ -198,7 +211,7 @@ def _get_file_info(s3objects, file_extensions):
 
 
 def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
-         config_path=DEFAULT_CONFIG_PATH, verbose=False):
+         config_path=DEFAULT_CONFIG_PATH, progress=[], verbose=False):
     """
     Download files for an SoC FPGA project from AWS. 
 
@@ -269,34 +282,52 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
 
         total_download_size += sum(config_files.sizes)
 
+    # Set up a progress monitor
+    show_bar = False
+    show_json = False
+    if 'bar' in progress:
+        show_bar = True
+    if 'json' in progress:
+        show_json = True
+    progressMonitor = _ProgressMonitor(s3directory, total_download_size, show_bar=show_bar, show_json=show_json)
+
     # Download the firmware files
     for (key, filename) in zip(firmware_files.keys, firmware_files.names):
+        progressMonitor.status = "downloading {}".format(key)
+
         if verbose:
-            print('Downloading file {} to {}...'.format(
+            tqdm.write('Downloading file {} to {}...'.format(
                 filename, FIRMWARE_PATH + filename))
+
         client.download_file(s3bucket, key, FIRMWARE_PATH + filename,
-                             Callback=_download_progress)
+                             Callback=progressMonitor)
 
     # If there are driver files, download them
     if driver_files:
         for key, filename in zip(driver_files.keys, driver_files.names):
+            progressMonitor.status = "downloading {}".format(key)
+
             if verbose:
-                print('Downloading file {} to {}...'.format(
+                tqdm.write('Downloading file {} to {}...'.format(
                     filename, driver_path + project_name + '/' + filename))
+
             client.download_file(s3bucket, key, driver_path + project_name
-                                 + '/' + filename, Callback=_download_progress)
+                                 + '/' + filename, Callback=progressMonitor)
 
     # If there are config files, download them
     if config_files:
         for key, filename in zip(config_files.keys, config_files.names):
+            progressMonitor.status = "downloading {}".format(key)
+
             if verbose:
-                print('Downloading file {} to {}...'.format(
+                tqdm.write('Downloading file {} to {}...'.format(
                     filename, config_path + filename))
+
             client.download_file(s3bucket, key, config_path + filename,
-                                 Callback=_download_progress)
+                                 Callback=progressMonitor)
 
 
 if __name__ == "__main__":
     args = parseargs()
     main(args.bucket, args.directory, args.driver_path,
-         args.config_path, args.verbose)
+         args.config_path, args.progress, args.verbose)
