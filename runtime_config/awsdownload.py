@@ -20,12 +20,16 @@ driver_path : str
 config_path : str
     Where to put the UI.json and Linker.json config files
 
+progress : list of str
+    How to display download progress; options are 'bar' and 'json'
+
 verbose : bool
     Print verbose output
 
 Notes
 -----
-boto3 must be installed on the system in order to run this script.
+boto3 and tqdm must be installed on the system in order to run this script; 
+they can both be installed with pip.
 
 By convention, S3 directories are all lowercase, with words separated by hyphens
 when doing so improves readability. For example, the directory for the 
@@ -36,13 +40,22 @@ with underscores instead of hyphens, e.g. sound_effects.rbf.
 The directory name can be given with or without a trailing slash.
 
 The .dtbo and .rbf files need to be on the firmware search path, so they 
-will always be placed in /lib/firmware. If placing drivers in non-default path,
-users will need to supply that path as an argument to drivermgr.sh. 
+will always be placed in /lib/firmware. If placing drivers in a non-default
+path, users will need to supply that path as an argument to drivermgr.sh. 
 
-Example
--------
+Displaying download progress as json messages is intended to be read by 
+another program that can display a progress bar to a user on a web app.
+
+In order for the progress monitor bar to work to stay at the bottom of the
+console output, tqdm.write() is used instead of print().
+
+Examples
+--------
 Download files for the Audio Mini sound effects project
 $ ./awsdownload.py -b nih-demos -d audiomini/sound-effects
+
+Download files for the Audio Mini passthrough project and show a progress bar
+# ./awsdownload.py -b nih-demos -d audiomini/passthrough --progress bar
 
 Copyright
 ---------
@@ -79,44 +92,100 @@ FIRMWARE_EXTENSIONS = ('.rbf', '.dtbo')
 DRIVER_EXTENSIONS = ('.ko')
 CONFIG_EXTENSIONS = ('.json')
 
+"""
+Named tuple to group together info about S3 files.
+
+Parameters
+----------
+names
+    A tuple or list of file names
+keys
+    A tuple or list of the S3 keys corresponding to the files
+sizes
+    A tuple or list of the file sizes in bytes
+"""
 S3Files = namedtuple('S3Files', ['names', 'keys', 'sizes'])
 
 
 class _ProgressMonitor(object):
-    def __init__(self, s3directory, total_download_size, show_json=False, show_bar=False):
-        self.s3directory = s3directory
+    """
+    A download progress monitor.
+
+    Monitors the download progress of all the S3 files and displays a
+    progress indicator on stdout. This class is used as the callback
+    to the boto3 download_files method, which calls the __call__ method.
+
+    Parameters
+    ----------
+    total_download_size
+        Size of all the S3 files being downloaded, in bytes
+    show_json : bool
+        Show download progress as a json message
+    show_bar : bool
+        Show download progress as a progress bar
+
+    Attributes
+    ----------
+    status : str
+        User-definable download status message
+    bytes_received : int
+        The number of bytes received from S3 so far
+    percent_downloaded : int
+        How much of the files have been downloaded so far
+    json_status_message : dict
+        Download status message and progress as JSON
+
+    Notes
+    -----
+    The JSON status message can be read from stdout and used by other programs
+    to report the download progress/status. It's format is
+    {"progress": 42, "status": "downloading file x"}
+    """
+
+    def __init__(self, total_download_size, show_json=False, show_bar=False):
         self.total_download_size = total_download_size
         self.show_json = show_json
         self.show_bar = show_bar
         self.status = ""
-        self._bytes_received = 0
-        self._percent_downloaded = 0
-        self._json_status_message = {
-            "name": self.s3directory,
+        self.bytes_received = 0
+        self.percent_downloaded = 0
+        self.json_status_message = {
             "progress": 0,
             "status": ""
         }
 
         if self.show_bar:
-            self.progress_bar = tqdm(desc="Downloading", total=self.total_download_size, bar_format='{l_bar}{bar}| {n_fmt}B/{total_fmt}B [{elapsed}]', mininterval=0.05, unit_scale=True)
+            self.progress_bar = tqdm(
+                bar_format='{l_bar}{bar}| {n_fmt}B/{total_fmt}B [{elapsed}]', desc="Downloading", total=self.total_download_size,
+                mininterval=0.05, unit_scale=True)
         else:
-            self.progress_bar = None
+            self._progress_bar = None
 
     def __call__(self, bytes_received):
-        self._bytes_received += bytes_received
-        self._percent_downloaded = (
+        """
+        Update and print the download progress.
+
+        Download progress is only printed is show_json and/or show_bar are True.
+
+        Parameters
+        ----------
+        bytes_received : int
+            The number of bytes received since the previous callback from boto3
+        """
+        self.bytes_received += bytes_received
+        self.percent_downloaded = (
             int(self._bytes_received / self.total_download_size * 100)
         )
-        self._json_status_message['progress'] = self._percent_downloaded
-        self._json_status_message['status'] = self.status
+        self.json_status_message['progress'] = self.percent_downloaded
+        self.json_status_message['status'] = self.status
 
         if self.show_json:
             tqdm.write(json.dumps(self._json_status_message))
         if self.show_bar:
-            self.progress_bar.update(bytes_received)
+            self._progress_bar.update(bytes_received)
 
 
-def parseargs():
+def _parseargs():
     """
     Parse command-line arguments.
 
@@ -156,10 +225,11 @@ def parseargs():
         help="where to put the UI.json and Linker.json config files \
             (default: " + DEFAULT_CONFIG_PATH + ")"
     )
-    optional_args.add_argument('-p', '--progress', action='append',
-        help="progress monitoring; 'bar' displays a progress bar, and 'json' \
-            displays progress in json format; multiple arguments can be given",
-        choices=['bar', 'json'], default=[]
+    optional_args.add_argument(
+        '-p', '--progress', action='append', choices=['bar', 'json'],
+        default=[], help="progress monitoring; 'bar' displays a progress bar, \
+            and 'json' displays progress in json format; multiple arguments \
+            can be given",
     )
 
     # Parse the arguments
@@ -174,7 +244,6 @@ def parseargs():
     return args
 
 
-
 def _get_file_info(s3objects, file_extensions):
     """
     Get information about files in an s3 objects list.
@@ -184,11 +253,23 @@ def _get_file_info(s3objects, file_extensions):
 
     Parameters
     ----------
-    s3objects: list
+    s3objects : list
         List of dictionaries return by boto3's download_file()
 
-    file_extensions: tuple
+    file_extensions : tuple
         File extensions to match keys against
+
+    Returns
+    -------
+    S3Files
+        A named tuple containing tuples of file names, keys, and sizes
+
+    Notes
+    -----
+    boto3's list_objects_v2 returns a dictionary of information about the S3
+    objects. Within the 'Contents' key, which is what needs to be fed to this
+    function, each object in the list has 'Key' and 'Size' keys. 
+    The 'Key' attribute is of the form "some/directory/filename.extension". 
     """
     # Get firmware keys that end with any extension in file_extensions
     keys = tuple(obj['Key'] for obj in s3objects
@@ -232,6 +313,9 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
 
     config_path : str
         Where to put the UI.json and Linker.json config files
+
+    progress : list of str
+        How to display download progress; valid options are 'bar' and 'json'
 
     verbose : bool
         Print verbose output
@@ -289,7 +373,8 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
         show_bar = True
     if 'json' in progress:
         show_json = True
-    progressMonitor = _ProgressMonitor(s3directory, total_download_size, show_bar=show_bar, show_json=show_json)
+    progressMonitor = _ProgressMonitor(
+        total_download_size, show_bar=show_bar, show_json=show_json)
 
     # Download the firmware files
     for (key, filename) in zip(firmware_files.keys, firmware_files.names):
@@ -328,6 +413,6 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
 
 
 if __name__ == "__main__":
-    args = parseargs()
+    args = _parseargs()
     main(args.bucket, args.directory, args.driver_path,
          args.config_path, args.progress, args.verbose)
