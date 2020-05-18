@@ -155,7 +155,7 @@ class _ProgressMonitor(object):
         }
 
         if self.show_bar:
-            self.progress_bar = tqdm(
+            self._progress_bar = tqdm(
                 bar_format='{l_bar}{bar}| {n_fmt}B/{total_fmt}B [{elapsed}]', desc="Downloading", total=self.total_download_size,
                 mininterval=0.05, unit_scale=True)
         else:
@@ -174,13 +174,13 @@ class _ProgressMonitor(object):
         """
         self.bytes_received += bytes_received
         self.percent_downloaded = (
-            int(self._bytes_received / self.total_download_size * 100)
+            int(self.bytes_received / self.total_download_size * 100)
         )
         self.json_status_message['progress'] = self.percent_downloaded
         self.json_status_message['status'] = self.status
 
         if self.show_json:
-            tqdm.write(json.dumps(self._json_status_message))
+            tqdm.write(json.dumps(self.json_status_message))
         if self.show_bar:
             self._progress_bar.update(bytes_received)
 
