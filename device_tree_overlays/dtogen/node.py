@@ -318,9 +318,11 @@ class BridgeRootNode(Node):
             Describes compatible drivers with device tree node, by default None
         """
         super().__init__(name, label=label, children=children, compatible=compatible)
+        self._default_format = False
+        self.tab = False
 
     def _print_properties(self):
-        s = ''
+        s = '\n'
         # This specifies reg values in children will be with the bridge number
         # and the untranslated base address 
         s += self.add_tab()  +'#address-cells = <2>;\n'
