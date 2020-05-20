@@ -1,8 +1,9 @@
 from dtogen.parser import parser
-import os
+
 def main():
-    print(os.getcwd())
-    nodes = parser('dtogen/arria10_system.sopcinfo', 'arria10_hps_0_bridges', 'h2f_lw')
+    """Runs the device tree generation process
+    """
+    nodes = parser('dtogen/arria10_system.sopcinfo')
     for node in nodes:
         print(node)
     pass
