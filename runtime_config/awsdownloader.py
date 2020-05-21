@@ -6,7 +6,7 @@ This script downloads the bitstream, device tree overlay, and device
 drivers located in a user-supplied directory in a user-supplied S3 bucket.
 
 Parameters
----------
+----------
 s3bucket : str
     Name of the S3 bucket
 
@@ -52,10 +52,10 @@ console output, tqdm.write() is used instead of print().
 Examples
 --------
 Download files for the Audio Mini sound effects project
-$ ./awsdownload.py -b nih-demos -d audiomini/sound-effects
+$ ./awsdownloader.py -b nih-demos -d audiomini/sound-effects
 
 Download files for the Audio Mini passthrough project and show a progress bar
-# ./awsdownload.py -b nih-demos -d audiomini/passthrough --progress bar
+# ./awsdownloader.py -b nih-demos -d audiomini/passthrough --progress bar
 
 Copyright
 ---------
@@ -104,7 +104,7 @@ keys
 sizes
     A tuple or list of the file sizes in bytes
 """
-S3Files = namedtuple('S3Files', ['names', 'keys', 'sizes'])
+_S3Files = namedtuple('S3Files', ['names', 'keys', 'sizes'])
 
 
 class _ProgressMonitor(object):
@@ -185,7 +185,7 @@ class _ProgressMonitor(object):
             self._progress_bar.update(bytes_received)
 
 
-def _parseargs():
+def parseargs():
     """
     Parse command-line arguments.
 
@@ -261,7 +261,7 @@ def _get_file_info(s3objects, file_extensions):
 
     Returns
     -------
-    S3Files
+    _S3Files
         A named tuple containing tuples of file names, keys, and sizes
 
     Notes
@@ -287,8 +287,8 @@ def _get_file_info(s3objects, file_extensions):
     sizes = tuple(obj['Size'] for obj in s3objects
                   if obj['Key'].endswith(file_extensions))
 
-    # Pack everything into a S3Files named tuple
-    return S3Files(names=names, keys=keys, sizes=sizes)
+    # Pack everything into a _S3Files named tuple
+    return _S3Files(names=names, keys=keys, sizes=sizes)
 
 
 def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
@@ -321,7 +321,6 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
         Print verbose output
     """
     project_name = s3directory.split('/')[-1].replace('-', '_')
-    global total_download_size
 
     # Create an s3 client that doesn't need/use aws credentials
     client = boto3.client('s3', region_name='us-west-2',
@@ -413,6 +412,6 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
 
 
 if __name__ == "__main__":
-    args = _parseargs()
+    args = parseargs()
     main(args.bucket, args.directory, args.driver_path,
          args.config_path, args.progress, args.verbose)
