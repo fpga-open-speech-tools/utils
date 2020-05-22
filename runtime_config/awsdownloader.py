@@ -84,8 +84,6 @@ import argparse
 import os
 import json
 import requests
-# TODO: remove time import
-import time
 from tqdm import tqdm
 from collections import namedtuple
 from botocore.client import Config
