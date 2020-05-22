@@ -23,6 +23,9 @@ config_path : str
 progress : list of str
     How to display download progress; options are 'bar' and 'json'
 
+endpoint : str
+    HTTP endpoint, specified as http://ip:port, to send download progress to
+
 verbose : bool
     Print verbose output
 
@@ -80,6 +83,9 @@ import sys
 import argparse
 import os
 import json
+import requests
+# TODO: remove time import
+import time
 from tqdm import tqdm
 from collections import namedtuple
 from botocore.client import Config
@@ -91,6 +97,7 @@ DEFAULT_CONFIG_PATH = '../config/'
 FIRMWARE_EXTENSIONS = ('.rbf', '.dtbo')
 DRIVER_EXTENSIONS = ('.ko')
 CONFIG_EXTENSIONS = ('.json')
+HTTP_HEADERS = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
 """
 Named tuple to group together info about S3 files.
@@ -142,7 +149,8 @@ class _ProgressMonitor(object):
     {"progress": 42, "status": "downloading file x"}
     """
 
-    def __init__(self, total_download_size, show_json=False, show_bar=False):
+    def __init__(self, total_download_size, show_json=False, show_bar=False,
+                 endpoint=None):
         self.total_download_size = total_download_size
         self.show_json = show_json
         self.show_bar = show_bar
@@ -153,6 +161,7 @@ class _ProgressMonitor(object):
             "progress": 0,
             "status": ""
         }
+        self.endpoint = endpoint
 
         if self.show_bar:
             self._progress_bar = tqdm(
@@ -179,10 +188,19 @@ class _ProgressMonitor(object):
         self.json_status_message['progress'] = self.percent_downloaded
         self.json_status_message['status'] = self.status
 
+        json_str = json.dumps(self.json_status_message)
+
         if self.show_json:
-            tqdm.write(json.dumps(self.json_status_message))
+            tqdm.write(json_str)
         if self.show_bar:
             self._progress_bar.update(bytes_received)
+        if self.endpoint:
+            try:
+                requests.put(self.endpoint, data=json_str, headers=HTTP_HEADERS)
+            except Exception as e:
+                print(e)
+                # TODO: real error handling; at least use a more specific exception type once I know what it is
+
 
 
 def parseargs():
@@ -230,6 +248,9 @@ def parseargs():
         default=[], help="progress monitoring; 'bar' displays a progress bar, \
             and 'json' displays progress in json format; multiple arguments \
             can be given",
+    )
+    optional_args.add_argument('-e', '--endpoint', type=str,
+        help="HTTP endpoint to send download progress to; format is http://ip:port"
     )
 
     # Parse the arguments
@@ -292,7 +313,8 @@ def _get_file_info(s3objects, file_extensions):
 
 
 def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
-         config_path=DEFAULT_CONFIG_PATH, progress=[], verbose=False):
+         config_path=DEFAULT_CONFIG_PATH, progress=[], endpoint=None,
+         verbose=False):
     """
     Download files for an SoC FPGA project from AWS. 
 
@@ -316,6 +338,9 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
 
     progress : list of str
         How to display download progress; valid options are 'bar' and 'json'
+    
+    endpoint : str
+        HTTP endpoint, specified as http://ip:port, to send download progress to
 
     verbose : bool
         Print verbose output
@@ -372,8 +397,8 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
         show_bar = True
     if 'json' in progress:
         show_json = True
-    progressMonitor = _ProgressMonitor(
-        total_download_size, show_bar=show_bar, show_json=show_json)
+    progressMonitor = _ProgressMonitor(total_download_size, show_bar=show_bar,
+                                       show_json=show_json, endpoint=endpoint)
 
     # Download the firmware files
     for (key, filename) in zip(firmware_files.keys, firmware_files.names):
@@ -414,4 +439,4 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
 if __name__ == "__main__":
     args = parseargs()
     main(args.bucket, args.directory, args.driver_path,
-         args.config_path, args.progress, args.verbose)
+         args.config_path, args.progress, args.endpoint, args.verbose)
