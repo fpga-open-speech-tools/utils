@@ -24,6 +24,9 @@ config_path : str
 progress : list of str
     How to display download progress; options are 'bar' and 'json'
 
+endpoint : str
+    HTTP endpoint, specified as http://ip:port, to send download progress to
+
 verbose : bool
     Print verbose output
 
@@ -56,15 +59,23 @@ support@flatearthinc.com
 
 import awsdownloader
 import subprocess
+import os
+import sys
 
 
 def main():
+    # get the directory where this file is located.
+    # we need this path so we can launch the overlaymgr and drivermgr scripts
+    # when the script is called from somewhere else
+    script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+
     # use the awsdownloader to parse command line arguments
     args = awsdownloader.parseargs()
 
     # download the files from AWS
     awsdownloader.main(args.bucket, args.directory, args.driver_path,
-                       args.config_path, args.progress, args.verbose)
+                       args.config_path, args.progress, args.endpoint, 
+                       args.verbose)
 
     # the overlaymgr and drivermgr need the project name, which can be
     # determined from the s3 directory: '<device_name>/<project_name>'
@@ -72,15 +83,15 @@ def main():
 
     # load the overlay
     if args.verbose:
-        subprocess.run(['./overlaymgr', '-v', 'load', project_name])
+        subprocess.run([script_path + '/overlaymgr', '-v', 'load', project_name])
     else:
-        subprocess.run(['./overlaymgr', 'load', project_name])
+        subprocess.run([script_path + '/overlaymgr', 'load', project_name])
 
     # load the drivers
     if args.verbose:
-        subprocess.run(['./drivermgr', '-v', 'load', project_name])
+        subprocess.run([script_path + '/drivermgr', '-v', 'load', project_name])
     else:
-        subprocess.run(['./drivermgr', 'load', project_name])
+        subprocess.run([script_path + '/drivermgr', 'load', project_name])
 
 
 if __name__ == "__main__":
