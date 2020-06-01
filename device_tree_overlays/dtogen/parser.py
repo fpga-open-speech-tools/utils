@@ -22,14 +22,14 @@ def parser(sopc_file):
     bridges_root = root.find('./module/assignment[value="bridge"]/..')
     bridge_nodes, bridges = parse_bridges(root, bridges_root)
     
-    sl_nodes = parse_sl_nodes(root, bridges)
+    sl_nodes = parse_autogen_nodes(root, bridges)
     for node in sl_nodes:
         bridge_nodes[node.index].add_children(node)
     
     return [BridgeRootNode(bridges_root.attrib["name"], bridges_root.attrib["name"], children=bridge_nodes)]
 
-def parse_sl_nodes(root, bridges):
-    """Parses the Sensor Logic nodes under the bridges from the sopcinfo file
+def parse_autogen_nodes(root, bridges):
+    """Parses the Autogen nodes under the bridges from the sopcinfo file
 
     Parameters
     ----------
@@ -42,20 +42,19 @@ def parse_sl_nodes(root, bridges):
     Returns
     -------
     list of MemoryMappedSlaveNode
-        List of the Sensor Logic nodes found under the bridges as Device Tree Nodes
+        List of the Autogen nodes found under the bridges as Device Tree Nodes
     """
-    sl_nodes = root.findall('./module/assignment[name="embeddedsw.dts.vendor"][value="sl"]/..')
-    fe_nodes = root.findall('./module/assignment[name="embeddedsw.dts.vendor"][value="fe"]/..')
+    autogen_nodes = root.findall('./module/assignment[name="embeddedsw.dts.group"][value="autogen"]/..')
     
     nodes = []
-    for node in (sl_nodes + fe_nodes):
-        print(node)
+    for node in autogen_nodes:
         primary_compatible = f"fe,{node.attrib['kind']}-{node.attrib['version']}"
         secondary_compatible = node.findtext('./assignment[name="embeddedsw.dts.compatible"]/value')
         compatible = f"\"{primary_compatible}\", \"{secondary_compatible}\""
         
         address_span_bits = node.findtext('./interface[@name="avalon_slave"]/parameter[@name="addressSpan"]/value')
         avalon_connection = root.find('./connection[@kind="avalon"][endModule="' + node.attrib["name"] + '"]')
+
         baseAddress = avalon_connection.findtext('./parameter[@name="baseAddress"]/value')
         
         bridge = avalon_connection.findtext('./startConnectionPoint')

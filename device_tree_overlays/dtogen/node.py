@@ -78,7 +78,7 @@ class AbstractNode(ABC):
         s = ''
 
         # XXX: maybe we could handle the base device tree references in a cleaner way than just checking if the node doesn't have a parent. Just because a node doesn't have a parent doesn't mean that the node is being inserted at a label in the base device tree. The node could need to be inserted into the root of the base device tree, for example.
-        if self.parent is None:
+        if isinstance(self.parent, DeviceTreeRootNode):
             # if the node doesn't have a parent, reference a base device tree label for tree insertion
 
             # TODO: name is a required argument, so I'm using it for the label here, but maybe it would make more sense to use label instead? But labels aren't required in general.
@@ -194,8 +194,8 @@ class FpgaRegionNode(Node):
         s = ''
         s += super()._print_properties()
         s += self.add_tab() + 'firmware-name = "{}";\n'.format(self.firmware_name)
-        if self.status is not None:
-            s += self.add_tab() + 'status = "{}";\n'.format(self.status)
+        #if self.status is not None:
+        #    s += self.add_tab() + 'status = "{}";\n'.format(self.status)
 
         return s
 
@@ -292,7 +292,7 @@ class MemoryMappedSlaveNode(MemoryMappedNode):
 
         base_addr_str = self.hex(self.base_addr)[2:]
         self._name = name
-        self.name = f"{self._name}@0x{self.index or ''}{base_addr_str}"
+        self.name = f"{self._name}@{self.index or ''}{base_addr_str}"
     def _print_properties(self):
         s = ""
         s += f"{self.add_tab() }compatible = {self.compatible};\n"
@@ -350,4 +350,15 @@ class BridgeRootNode(Node):
                 else:
                     s += ',\n' + self.add_tab()  * 2
         return s
-       
+
+    
+class DeviceTreeRootNode(Node):
+    """Represents the root bridges node that fpga bridges children are under in the device tree
+    """
+    def __init__(self, children=[]):
+         super().__init__("Root", children=children)
+         self._default_format = False
+         self.tab = False
+    def _print_properties(self):
+        s = '/dts-v1/;\n/plugin/;\n\n'
+        return s
