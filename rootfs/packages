@@ -20,3 +20,9 @@ ssh
 
 # misc
 bash-completion
+avahi-daemon
+avahi-discover
+avahi-utils
+
+# wifi connect
+bash <(curl -L https://github.com/balena-io/wifi-connect/raw/master/scripts/raspbian-install.sh)
