@@ -26,6 +26,11 @@ cp sshd_config /etc/ssh/
 yes N | bash <(curl -L https://github.com/balena-io/wifi-connect/raw/master/scripts/raspbian-install.sh)
 
 echo
+
+# install dotnet core runtime
+curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin
+
+echo
 echo "setting up user account..."
 echo
 # setup our root user
