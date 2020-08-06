@@ -10,6 +10,7 @@ busybox
 python
 python3
 nodejs
+sudo
 
 # networking
 iproute2
@@ -17,12 +18,12 @@ iputils-ping
 net-tools
 tftp
 ssh
-
-# misc
-bash-completion
+network-manager
+curl
 avahi-daemon
 avahi-discover
 avahi-utils
 
-# wifi connect
-bash <(curl -L https://github.com/balena-io/wifi-connect/raw/master/scripts/raspbian-install.sh)
+# misc
+bash-completion
+firmware-ralink

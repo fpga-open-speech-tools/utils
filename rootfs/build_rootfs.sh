@@ -29,6 +29,10 @@ sudo cp /etc/resolv.conf $ROOT_DIR/etc/resolv.conf
 
 # copy our package list into the armhf rootfs so we can install them once we chroot into the rootfs
 cp packages $ROOT_DIR/
+cp sources.list $ROOT_DIR/
+cp ssh.service $ROOT_DIR/
+cp hosts $ROOT_DIR/
+cp sshd_config $ROOT_DIR/
 
 # mount stuff in the armhf rootfs
 sudo mount -t proc /proc $ROOT_DIR/proc
