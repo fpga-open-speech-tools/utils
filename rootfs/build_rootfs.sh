@@ -21,13 +21,18 @@ mkdir $ROOT_DIR
 sudo tar -xpf $ROOTFS_ARCHIVE --directory=ubuntu-base
 
 # install qemu-user-static so we can chroot into the armhf rootfs
+echo
+echo "installing prerequisities..."
+echo
 sudo apt install qemu-user-static
 sudo cp /usr/bin/qemu-arm-static $ROOT_DIR/usr/bin/
 
 # copy our resolv.conf into the armhf rootfs so we have internet when we chroot into it
 sudo cp /etc/resolv.conf $ROOT_DIR/etc/resolv.conf
 
-# copy our package list into the armhf rootfs so we can install them once we chroot into the rootfs
+# copy our package list and config files into the armhf rootfs
+echo
+echo "copying files to new rootfs..."
 cp packages $ROOT_DIR/
 cp sources.list $ROOT_DIR/
 cp ssh.service $ROOT_DIR/
@@ -52,8 +57,7 @@ sudo umount -l $ROOT_DIR/dev
 sudo umount -l $ROOT_DIR/proc
 sudo umount -l $ROOT_DIR/sys
 
-# clean up after ourselves
-rm $ROOTFS_ARCHIVE
-
 # package up the rootfs
+echo
+echo "Archiving ubuntu-base rootfs as rootfs.tar.gz..."
 sudo tar -czf rootfs.tar.gz $ROOT_DIR

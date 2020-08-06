@@ -1,20 +1,33 @@
 #!/bin/bash
 
-# install all of the packages
-# https://askubuntu.com/questions/252734/apt-get-mass-install-packages-from-a-file
+# TODO: apt keeps complaining about our locale not being set; we should probably set it properly
 
+# add non-free sources so we can install the ralink wifi firmware
 cp sources.list /etc/apt/
 
-
+echo 
+echo "updating packages..."
+echo
 apt update && apt upgrade -y
+
+# install all packages in the packages file
+# https://askubuntu.com/questions/252734/apt-get-mass-install-packages-from-a-file
+echo
+echo "installing packages..."
+echo
 xargs -a <(awk '! /^ *(#|$)/' packages) -r -- apt -y install 
 
+# avahi config files need to be copied after avahi is installed
 cp ssh.service /etc/avahi/services
 cp hosts /etc/avahi/
 cp sshd_config /etc/ssh/
 
-bash <(curl -L https://github.com/balena-io/wifi-connect/raw/master/scripts/raspbian-install.sh)
+# install balena-io wifi-connect
+yes N | bash <(curl -L https://github.com/balena-io/wifi-connect/raw/master/scripts/raspbian-install.sh)
 
+echo
+echo "setting up user account..."
+echo
 # setup our root user
 # TODO: we really should not be using root for everything
 #       we should create a normal user and disable the root account, 
@@ -22,5 +35,6 @@ bash <(curl -L https://github.com/balena-io/wifi-connect/raw/master/scripts/rasp
 echo "root:root" | chpasswd
 
 # we're done; exit the chroot
+echo "done setting up rootfs..."
 exit
 
