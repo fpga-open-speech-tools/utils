@@ -432,6 +432,7 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
 
             client.download_file(s3bucket, key, config_path + filename,
                                  Callback=progressMonitor)
+    return (firmware_files)
 
 
 if __name__ == "__main__":
