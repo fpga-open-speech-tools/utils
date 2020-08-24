@@ -73,9 +73,12 @@ def main():
     args = awsdownloader.parseargs()
 
     # download the files from AWS
-    awsdownloader.main(args.bucket, args.directory, args.driver_path,
+    (firmware_files) = awsdownloader.main(args.bucket, args.directory, args.driver_path,
                        args.config_path, args.progress, args.endpoint, 
                        args.verbose)
+
+    overlay_filename = next(file for file in firmware_files.names if ".dtbo" in file)
+    overlay_name = overlay_filename.split(".")[0]
 
     # the overlaymgr and drivermgr need the project name, which can be
     # determined from the s3 directory: '<device_name>/<project_name>'
@@ -83,9 +86,9 @@ def main():
 
     # load the overlay
     if args.verbose:
-        subprocess.run([script_path + '/overlaymgr', '-v', 'load', project_name])
+        subprocess.run([script_path + '/overlaymgr', '-v', 'load', overlay_name])
     else:
-        subprocess.run([script_path + '/overlaymgr', 'load', project_name])
+        subprocess.run([script_path + '/overlaymgr', 'load', overlay_name])
 
     # load the drivers
     if args.verbose:
