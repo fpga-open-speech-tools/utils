@@ -22,7 +22,7 @@
 # for more information on the configfs overlay interface.
 #
 # author Trevor Vannoy
-# copyright 2020 Flat Earth Inc
+# copyright 2020 Audio Logic
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
 # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
@@ -33,10 +33,10 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # Trevor Vannoy
-# Flat Earth Inc
+# Audio Logic
 # 985 Technology Blvd
 # Bozeman, MT 59718
-# support@flatearthinc.com
+# openspeech@flatearthinc.com
 
 COMMAND=""
 OVERLAY_NAME=""

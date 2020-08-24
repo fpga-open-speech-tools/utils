@@ -1,0 +1,5 @@
+*.dts
+*.dtb
+*.dtbo
+**/.vscode
+**/__pycache__/**
