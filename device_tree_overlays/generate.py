@@ -8,15 +8,16 @@ def generate_device_tree_overlay(sopcinfo_file, rbf_file, output_dir = ""):
     """Runs the device tree generation process
     """
     sopcinfo_file = sopcinfo_file.replace("\\\\", "\\")
-    output_dir = output_dir.replace("\\\\", "\\")
-    rbf_file = pathlib.Path(rbf_file).name
+    output_dir = pathlib.Path(output_dir)
+    rbf_file = str(pathlib.Path(rbf_file).with_suffix(".rbf"))
+    dts_file = pathlib.Path(rbf_file).with_suffix(".dts")
 
     nodes = parser(sopcinfo_file)
     fpga_region_node = FpgaRegionNode(
         "base_fpga_region", rbf_file, "base_fpga_region", nodes)
     dtroot = DeviceTreeRootNode([fpga_region_node])
 
-    with open(output_dir + rbf_file[:-4] + ".dts", "w") as out_file:
+    with open(str(output_dir.joinpath(dts_file)), "w") as out_file:
         out_file.write(str(dtroot))
 
 def parseargs():
