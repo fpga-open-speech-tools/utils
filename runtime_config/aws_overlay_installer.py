@@ -80,7 +80,7 @@ def main():
     overlay_filename = next(file for file in firmware_files.names if ".dtbo" in file)
     overlay_name = overlay_filename.split(".")[0]
 
-    # the overlaymgr and drivermgr need the project name, which can be
+    # the drivermgr needs the project name, which can be
     # determined from the s3 directory: '<device_name>/<project_name>'
     project_name = args.directory.split('/')[-1].replace('-', '_')
 
