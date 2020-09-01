@@ -85,10 +85,11 @@ def main():
     project_name = args.directory.split('/')[-1].replace('-', '_')
 
     # load the overlay
-    if args.verbose:
-        subprocess.run([script_path + '/overlaymgr', '-v', 'load', overlay_name])
+    if args.verbose or True:
+        subprocess.run([script_path + '/overlaymgr', '-v', '--dir', project_name, 'load', overlay_name])
     else:
-        subprocess.run([script_path + '/overlaymgr', 'load', overlay_name])
+        subprocess.run([script_path + '/overlaymgr', '--dir', project_name, 'load', overlay_name])
+    
 
     # load the drivers
     if args.verbose:
