@@ -85,7 +85,7 @@ def main():
     project_name = args.directory.split('/')[-1].replace('-', '_')
 
     # load the overlay
-    if args.verbose or True:
+    if args.verbose:
         subprocess.run([script_path + '/overlaymgr', '-v', '--dir', project_name, 'load', overlay_name])
     else:
         subprocess.run([script_path + '/overlaymgr', '--dir', project_name, 'load', overlay_name])
