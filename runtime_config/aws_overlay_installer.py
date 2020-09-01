@@ -86,9 +86,10 @@ def main():
 
     # load the overlay
     if args.verbose:
-        subprocess.run([script_path + '/overlaymgr', '-v', 'load', overlay_name])
+        subprocess.run([script_path + '/overlaymgr', '-v', '--dir', project_name, 'load', overlay_name])
     else:
-        subprocess.run([script_path + '/overlaymgr', 'load', overlay_name])
+        subprocess.run([script_path + '/overlaymgr', '--dir', project_name, 'load', overlay_name])
+    
 
     # load the drivers
     if args.verbose:
