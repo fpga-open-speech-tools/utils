@@ -84,6 +84,7 @@ import argparse
 import os
 import json
 import requests
+import pathlib
 from tqdm import tqdm
 from collections import namedtuple
 from botocore.client import Config
@@ -372,9 +373,8 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
     driver_files = _get_file_info(objects, DRIVER_EXTENSIONS)
 
     if driver_files:
-        # Create a directory for the drivers if one doesn't already exist
-        if not os.path.isdir(driver_path + project_name):
-            os.mkdir(driver_path + project_name)
+        # Create a directory for the drivers
+        pathlib.Path(driver_path + project_name).mkdir(parents=True, exist_ok=True)
 
         total_download_size += sum(driver_files.sizes)
 
@@ -382,9 +382,8 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
     config_files = _get_file_info(objects, CONFIG_EXTENSIONS)
 
     if config_files:
-        # Create a directory for the config files if one doesn't already exist
-        if not os.path.isdir(config_path):
-            os.mkdir(config_path)
+        # Create a directory for the config files
+        pathlib.Path(driver_path + project_name).mkdir(parents=True, exist_ok=True)
 
         total_download_size += sum(config_files.sizes)
 
