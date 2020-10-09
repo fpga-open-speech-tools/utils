@@ -4,7 +4,6 @@ chmod +x /var/lib/frost/web_app/publish/OpenSpeechTools;
 cd /var/lib/frost;
 echo "Moving to /var/lib/frost and cloning repos";
 git clone https://github.com/fpga-open-speech-tools/deployment_manager.git;
-git clone https://github.com/fpga-open-speech-tools/utils.git;
 cd /var/lib/frost/deployment_manager;
 npm install;
 
