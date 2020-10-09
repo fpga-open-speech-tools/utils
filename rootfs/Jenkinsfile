@@ -8,6 +8,13 @@ pipeline
             agent {label 'Ubuntu_20.04.1'}
             stages 
             {
+                stage('Copy Frost Edge')
+                {
+                    steps
+                    {   
+                        copyArtifacts filter: 'frost-edge_20201009_armhf.deb', fingerprintArtifacts: true, projectName: 'Frost_Edge', selector: lastSuccessful(), target: 'rootfs'
+                    }
+                }
                 stage('Build Root File System')
                 {
                     steps

@@ -22,6 +22,9 @@ cp ssh.service /etc/avahi/services
 cp hosts /etc/avahi/
 cp sshd_config /etc/ssh/
 
+dpkg -i /frost-edge.deb
+rm /frost-edge.deb
+
 # install balena-io wifi-connect
 yes N | bash <(curl -L https://github.com/balena-io/wifi-connect/raw/master/scripts/raspbian-install.sh)
 

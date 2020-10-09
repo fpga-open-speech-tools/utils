@@ -38,6 +38,7 @@ cp sources.list $ROOT_DIR/
 cp ssh.service $ROOT_DIR/
 cp hosts $ROOT_DIR/
 cp sshd_config $ROOT_DIR/
+cp frost-edge_*_armhf.deb $ROOT_DIR/frost-edge.deb
 
 # mount stuff in the armhf rootfs
 sudo mount -t proc /proc $ROOT_DIR/proc
