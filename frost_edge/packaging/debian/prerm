@@ -1,0 +1,11 @@
+#!/bin/bash
+rm -r /var/lib/frost/
+
+service_status=`systemctl is-active frost_edge.service`
+if [[ "$service_status" == "active" ]]; then
+  echo "stopping frost_edge.service"
+  systemctl stop frost_edge.service
+  echo "disable frost_edge.service"
+  systemctl disable frost_edge.service
+  systemctl daemon-reload
+fi
