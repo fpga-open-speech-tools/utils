@@ -24,7 +24,7 @@ sudo tar -xpf $ROOTFS_ARCHIVE --directory=ubuntu-base
 echo
 echo "installing prerequisities..."
 echo
-sudo apt install qemu-user-static
+sudo apt install qemu-user-static -y
 sudo cp /usr/bin/qemu-arm-static $ROOT_DIR/usr/bin/
 
 # copy our resolv.conf into the armhf rootfs so we have internet when we chroot into it
