@@ -14,7 +14,12 @@ pipeline
                     {
                         stage('Frost Edge')
                         {
-                            when {changeset "frost_edge/**/*"}
+                            when {
+                                anyOf {
+                                    changeset "frost_edge/**/*"
+                                    changeset "runtime_config/*"
+                                }
+                            }
                             steps 
                             {
                                 build job: 'Frost_Edge'
