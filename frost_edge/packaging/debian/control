@@ -1,0 +1,12 @@
+Source: frost-edge
+Maintainer: Connor Dack <support@flatearthinc.com>
+Build-Depends:
+Standards-Version: 3.7.2
+
+Package: frost-edge
+Depends: 
+Priority: optional
+Architecture: any
+Description: Deployment of the Frost Edge including Frost LKMs and the Frost Web App.
+
+
