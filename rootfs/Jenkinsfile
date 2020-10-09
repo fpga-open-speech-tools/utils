@@ -3,9 +3,9 @@ pipeline
     agent none
     stages
     {
-        stage ('DE10 5.4.34 Ubunt 18.04.5')
+        stage ('Ubuntu_20.04.1')
         {
-            agent {label 'DE10-5.4.34-Ubuntu_18.04.5_LTS'}
+            agent {label 'Ubuntu_20.04.1'}
             stages 
             {
                 stage('Build Root File System')
