@@ -29,16 +29,22 @@ pipeline
                         } 
                     }
                 }
-                stage('Packaging')
+                stage('Clone Utils Repo')
                 {
                     steps
                     {   dir("frost_edge")
                         {
-                            dir("packaging/")
-                            {
-                                sh 'dch -v`date "+%Y%m%d"` -m "Automated Build" -b'
-                                sh 'dpkg-buildpackage -b'
-                            }
+                            sh'git clone https://github.com/fpga-open-speech-tools/utils.git;'
+                        }
+                    }
+                }
+                stage('Packaging')
+                {
+                    steps
+                    {   dir("frost_edge/packaging/")
+                        {
+                            sh 'dch -v`date "+%Y%m%d"` -m "Automated Build" -b'
+                            sh 'dpkg-buildpackage -b'
                         }
                     }
                 }
