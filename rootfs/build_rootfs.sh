@@ -1,6 +1,6 @@
 #!/bin/bash
 
-UBUNTU_VERSION=18.04.3
+UBUNTU_VERSION=20.04
 ROOTFS_ARCHIVE=ubuntu-base-$UBUNTU_VERSION-base-armhf.tar.gz
 ROOT_DIR=ubuntu-base
 
