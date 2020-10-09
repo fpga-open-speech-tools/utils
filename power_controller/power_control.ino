@@ -1,6 +1,4 @@
 /*
-  This program controls the power on/off sequecing for the Audio Blade.  
-
   Copyright 2020 Audio Logic Inc
 
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE 
@@ -127,6 +125,9 @@ void setup()
   // Clear and enable the interrupt group
   PCIFR  |= bit (PCIF0);
   PCICR  |= bit (PCIE0);
+
+  digitalWrite(PWR_EN,HIGH);
+  digitalWrite(UART_EN,LOW);
 }
 
 void loop()

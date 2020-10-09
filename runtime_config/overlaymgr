@@ -110,6 +110,12 @@ function parse_args() {
         # pop argument off the argument array "$@"
         shift
         ;;
+      -d|--dir)
+        shift
+        OVERLAY_DIR="$1"
+        # pop argument off the argument array "$@"
+        shift
+        ;;
       --*)
         echo "Unrecognized argument: $1" 1>&2
         echo
@@ -141,6 +147,10 @@ function parse_args() {
   COMMAND="${positional_args[0]}"
   OVERLAY_NAME="${positional_args[1]}"
 
+  if [ -z "$OVERLAY_DIR" ]; then
+    OVERLAY_DIR=$OVERLAY_NAME
+  fi
+
   readonly VERBOSE
   readonly COMMAND
   readonly OVERLAY_NAME
@@ -166,19 +176,19 @@ function parse_args() {
 function load() {
   if [[ "${VERBOSE}" -eq 1 ]]; then
     echo "Making device tree overlay directory"
-    echo "    mkdir ${CONFIGFS_PATH}/${OVERLAY_NAME}"
+    echo "    mkdir ${CONFIGFS_PATH}/${OVERLAY_DIR}"
     echo
   fi
   # make the overlay directory in configfs
-  mkdir "${CONFIGFS_PATH}"/"${OVERLAY_NAME}"
+  mkdir "${CONFIGFS_PATH}"/"$OVERLAY_DIR"
 
   if [[ "${VERBOSE}" -eq 1 ]]; then
     echo "Applying overlay"
-    echo "    echo ${OVERLAY_NAME}.dtbo > ${CONFIGFS_PATH}/${OVERLAY_NAME}/path"
+    echo "    echo ${OVERLAY_NAME}.dtbo > ${CONFIGFS_PATH}/$OVERLAY_DIR/path"
     echo
   fi
   # load overlay by echoing the overlay file name to the path property file
-  eval echo "${OVERLAY_NAME}".dtbo > "${CONFIGFS_PATH}"/"${OVERLAY_NAME}"/path
+  eval echo "${OVERLAY_NAME}".dtbo > "${CONFIGFS_PATH}"/"$OVERLAY_DIR"/path
 }
 
 # Remove the device tree overlay.
