@@ -1,6 +1,6 @@
 #!/bin/bash
 
-UBUNTU_VERSION=18.04.3
+UBUNTU_VERSION=20.04
 ROOTFS_ARCHIVE=ubuntu-base-$UBUNTU_VERSION-base-armhf.tar.gz
 ROOT_DIR=ubuntu-base
 
@@ -25,7 +25,7 @@ echo
 echo "installing prerequisities..."
 echo
 sudo apt install qemu-user-static -y
-sudo cp /usr/bin/qemu-arm-static $ROOT_DIR/usr/bin/
+sudo update-binfmts --enable qemu-arm
 
 # copy our resolv.conf into the armhf rootfs so we have internet when we chroot into it
 sudo cp /etc/resolv.conf $ROOT_DIR/etc/resolv.conf
@@ -34,7 +34,7 @@ sudo cp /etc/resolv.conf $ROOT_DIR/etc/resolv.conf
 echo
 echo "copying files to new rootfs..."
 cp packages $ROOT_DIR/
-cp sources.list $ROOT_DIR/
+cp sources-$UBUNTU_VERSION.list $ROOT_DIR/sources.list
 cp ssh.service $ROOT_DIR/
 cp hosts $ROOT_DIR/
 cp sshd_config $ROOT_DIR/
