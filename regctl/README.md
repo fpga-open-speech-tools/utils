@@ -1,7 +1,9 @@
 # Register Control Program
-`regctl` is a command line program that allows us to read/write registers by name, instead of by address like we did with devmem. This *userspace* program uses `mmap()` to access system memory, just like devmem does. This program is really just a stopgap if you don't have time to go through the process of creating drivers (kernel modules) and device trees, or if just prefer userspace drivers then you can use this. 
+`regctl` is a command line program that allows users to read/write registers by name, instead of by address like one would with `devmem`. This *userspace* program uses `mmap()` to access system memory, just like `devmem` does. This program is mostly useful as a slightly higher-level debugging/testing utility compared to using `devmem` (e.g. `busybox devmem` or `devmem2`). 
 
 One nice thing about this program is that it handles conversion from human-readable numbers, like 0.34, to their fixed-point representations. 
+
+
 
 ## Usage
 ```
@@ -17,9 +19,13 @@ regctl -- read and write fpga fabric registers by name
 ```
 
 **Examples:**
+
 `./regctl -v write left_gain 0.2`
+
 `./regctl --readback --verbose write right_gain 0.732`
+
 `./regctl -v read left_gain`
+
 `./regctl -l`
 
 ## Customization
@@ -44,4 +50,4 @@ static reg_t registers[] = {
 ```
 
 ## Compiling regctl
-Run the Makefile. The only prerequisite is that you're on a Linux machine and have exported `CROSS_COMPILE=arm-linux-gnueabihf-` to cross compile the executable for ARM. The Makefile will by default create executables for both x86 and ARM, but the x86 executable isn't useful here. 
+Run the Makefile. The only prerequisite is that you're on a Linux machine and have exported `CROSS_COMPILE=arm-linux-gnueabihf-` to cross compile the executable for ARM. The Makefile will by default create executables for both x86 and ARM.
