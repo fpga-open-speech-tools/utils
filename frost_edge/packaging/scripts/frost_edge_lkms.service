@@ -5,7 +5,7 @@ After=network.target network-online.target
 
 [Service]
 Type=simple
-ExecStart=/bin/bash /usr/bin/frost_edge.sh
+ExecStart=/bin/bash /usr/bin/frost_edge_lkms.sh
 Restart=on-failure
 RestartSec=1
 User=root
