@@ -9,10 +9,12 @@ build:
 	cp -r ../utils/runtime_config/ src/armhf/var/lib/frost/utils/;
 
 	mkdir -p src/armhf/usr/bin/;
-	cp scripts/frost_edge.sh src/armhf/usr/bin/;
+	cp scripts/frost_edge_lkms.sh src/armhf/usr/bin/;
 
 	mkdir -p src/armhf/etc/systemd/system/;
-	cp scripts/frost_edge.service src/armhf/etc/systemd/system/;
+	cp scripts/frost_edge_lkms.service    src/armhf/etc/systemd/system/;
+	cp scripts/frost_edge_web_app.service src/armhf/etc/systemd/system/;
+	cp scripts/frost_edge_dm.service      src/armhf/etc/systemd/system/;
 
 install:
 	cp -av src/`dpkg --print-architecture`/* ${DESTDIR}
