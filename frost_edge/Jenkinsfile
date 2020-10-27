@@ -1,0 +1,74 @@
+pipeline
+{
+    agent none
+    stages
+    {
+        stage ('DE10 5.4.34 Ubunt 18.04.5')
+        {
+            agent {label 'DE10-5.4.34-Ubuntu_18.04.5_LTS'}
+            stages 
+            {
+                stage('Copy LKM Artifacts')
+                {
+                    steps
+                    {   dir("frost_edge")
+                        {
+                            sh 'mkdir -p lkms;'
+                            copyArtifacts filter: 'FE_AD1939.ko, FE_AD7768_4.ko, FE_PGA2505.ko, FE_TPA613A2.ko', fingerprintArtifacts: true, projectName: 'Linux_LKMs', selector: lastSuccessful(), target: 'lkms'
+                        }
+                    }
+                }
+                stage('Copy Web App Artifacts')
+                {
+                    steps
+                    {   dir("frost_edge")
+                        {
+                            sh 'mkdir -p web_app;'
+                            copyArtifacts filter: 'swap/NIH/FrOST_Web_App/OST-Webapp.zip', fingerprintArtifacts: true, projectName: 'FrOST Web App', selector: lastSuccessful(), target: 'web_app'
+                            sh 'unzip web_app/swap/NIH/FrOST_Web_App/OST-Webapp.zip'
+                        } 
+                    }
+                }
+                stage('Clone Utils Repo')
+                {
+                    steps
+                    {   dir("frost_edge")
+                        {
+                            sh'git clone https://github.com/fpga-open-speech-tools/utils.git;'
+                        }
+                    }
+                }
+                stage('Packaging')
+                {
+                    steps
+                    {   dir("frost_edge/packaging/")
+                        {
+                            sh 'dch -v`date "+%Y%m%d"` -m "Automated Build" -b'
+                            sh 'dpkg-buildpackage -b'
+                        }
+                    }
+                }
+                stage('Archive')
+                {
+                    steps
+                    {
+                        dir("frost_edge/")
+                        {
+                            archiveArtifacts artifacts: 'frost-edge_*.deb', fingerprint: true
+                        }
+                    }
+                }
+                stage('Cleanup')
+                {
+                    steps
+                    {
+                        deleteDir()
+                        dir("${workspace}@tmp") {
+                            deleteDir()
+                        }
+                    }
+                } 
+            }
+        }
+    }
+}
