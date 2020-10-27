@@ -1,11 +1,27 @@
 #!/bin/bash
 rm -r /var/lib/frost/
 
-service_status=`systemctl is-active frost_edge.service`
+service_status=`systemctl is-active frost_edge_lkms.service`
 if [[ "$service_status" == "active" ]]; then
-  echo "stopping frost_edge.service"
-  systemctl stop frost_edge.service
-  echo "disable frost_edge.service"
-  systemctl disable frost_edge.service
-  systemctl daemon-reload
+  echo "stopping frost_edge_lkms.service"
+  systemctl stop frost_edge_lkms.service
 fi
+echo "disable frost_edge_lkms.service"
+systemctl disable frost_edge_lkms.service
+
+service_status=`systemctl is-active frost_edge_web_app.service`
+if [[ "$service_status" == "active" ]]; then
+  echo "stopping frost_edge_web_app.service"
+  systemctl stop frost_edge_web_app.service
+fi
+echo "disable frost_edge_web_app.service"
+systemctl disable frost_edge_web_app.service
+
+service_status=`systemctl is-active frost_edge_dm.service`
+if [[ "$service_status" == "active" ]]; then
+  echo "stopping frost_edge_dm.service"
+  systemctl stop frost_edge_dm.service
+fi
+echo "disable frost_edge_dm.service"
+systemctl disable frost_edge_dm.service
+systemctl daemon-reload

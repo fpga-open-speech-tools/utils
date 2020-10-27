@@ -8,5 +8,16 @@ cd /var/lib/frost/deployment_manager;
 npm install;
 
 systemctl daemon-reload
-systemctl start frost_edge.service
-systemctl enable frost_edge.service
+echo "Starting and Enabling Frost Edge LKMs"
+systemctl start frost_edge_lkms.service
+systemctl enable frost_edge_lkms.service
+
+echo "Starting and Enabling Frost Edge Web App"
+systemctl start frost_edge_web_app.service
+systemctl enable frost_edge_web_app.service
+
+echo "Starting and Enabling Frost Edge Deployment Manager (DM)"
+systemctl start frost_edge_dm.service
+systemctl enable frost_edge_dm.service
+
+systemctl daemon-reload
