@@ -1,7 +1,8 @@
-#!/bin/bash
+#!/bin/bash 
 
 UBUNTU_VERSION=20.04
-ROOTFS_ARCHIVE=ubuntu-base-$UBUNTU_VERSION-base-armhf.tar.gz
+UBUNTU_FULL_VERSION=20.04.1
+ROOTFS_ARCHIVE=ubuntu-base-$UBUNTU_FULL_VERSION-base-armhf.tar.gz
 ROOT_DIR=ubuntu-base
 
 # cleanup any previous rootfs
@@ -13,7 +14,7 @@ fi
 if [ -f $ROOTFS_ARCHIVE ]; then
     echo "archive already exists; using that one..."
 else
-    wget http://cdimage.ubuntu.com/ubuntu-base/releases/$UBUNTU_VERSION/release/ubuntu-base-$UBUNTU_VERSION-base-armhf.tar.gz
+    wget http://cdimage.ubuntu.com/ubuntu-base/releases/$UBUNTU_VERSION/release/$ROOTFS_ARCHIVE
 fi
 
 # extract the rootfs
@@ -34,7 +35,7 @@ sudo cp /etc/resolv.conf $ROOT_DIR/etc/resolv.conf
 echo
 echo "copying files to new rootfs..."
 cp packages $ROOT_DIR/
-cp sources.list $ROOT_DIR/
+cp sources-$UBUNTU_VERSION.list $ROOT_DIR/sources.list
 cp ssh.service $ROOT_DIR/
 cp hosts $ROOT_DIR/
 cp sshd_config $ROOT_DIR/
@@ -62,3 +63,4 @@ sudo umount -l $ROOT_DIR/sys
 echo
 echo "Archiving ubuntu-base rootfs as rootfs.tar.gz..."
 sudo tar -czf rootfs.tar.gz $ROOT_DIR
+
