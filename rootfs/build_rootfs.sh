@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 UBUNTU_VERSION=20.04
 UBUNTU_FULL_VERSION=20.04.1
@@ -63,3 +63,4 @@ sudo umount -l $ROOT_DIR/sys
 echo
 echo "Archiving ubuntu-base rootfs as rootfs.tar.gz..."
 sudo tar -czf rootfs.tar.gz $ROOT_DIR
+
