@@ -15,7 +15,7 @@ apt update && apt upgrade -y
 echo
 echo "installing packages..."
 echo
-xargs -a <(awk '! /^ *(#|$)/' packages) -r -- apt -y install 
+xargs -a <(awk '! /^ *(#|$)/' packages) -r -- apt -y --no-install-recommends install 
 
 # avahi config files need to be copied after avahi is installed
 cp ssh.service /etc/avahi/services
