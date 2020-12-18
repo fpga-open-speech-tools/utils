@@ -3,7 +3,7 @@ build:
 	cp ../lkms/* src/armhf/lib/modules/frost/;
 
 	mkdir -p src/armhf/var/lib/frost/web_app/;
-	cp -r ../web_app/publish src/armhf/var/lib/frost/web_app/;
+	unzip ../web_app/publish  -d src/armhf/var/lib/frost/web_app/;
 
 	mkdir -p src/armhf/var/lib/frost/utils/;
 	cp -r ../utils/runtime_config/ src/armhf/var/lib/frost/utils/;
