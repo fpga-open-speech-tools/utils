@@ -31,7 +31,8 @@ curl
 avahi-daemon
 avahi-discover
 avahi-utils
-isc-dhcp-client   
+isc-dhcp-client
+resolvconf   
 
 # misc
 bash-completion
