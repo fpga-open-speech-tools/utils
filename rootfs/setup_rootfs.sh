@@ -39,6 +39,8 @@ echo "   Install Boto3"
 pip3 install boto3
 echo "   Installing TQDM"
 pip3 install tqdm
+echo "   Installing Requests"
+pip3 install requests
 
 # install balena-io wifi-connect
 yes N | bash <(curl -L https://github.com/balena-io/wifi-connect/raw/master/scripts/raspbian-install.sh)
