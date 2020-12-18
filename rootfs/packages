@@ -30,6 +30,7 @@ curl
 avahi-daemon
 avahi-discover
 avahi-utils
+dhclient
 
 # misc
 bash-completion
