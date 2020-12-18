@@ -25,7 +25,11 @@ pipeline
                         {
                             sh 'mkdir -p web_app;'
                             copyArtifacts filter: 'frost_web_app.zip', fingerprintArtifacts: true, projectName: 'FrOST Web App', selector: lastSuccessful(), target: 'web_app'
-                            sh 'unzip web_app/frost_web_app.zip'
+                            dir("web_app")
+                            {
+                                sh 'unzip frost_web_app.zip'
+                            }
+                            
                         } 
                     }
                 }
