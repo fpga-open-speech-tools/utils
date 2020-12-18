@@ -24,8 +24,21 @@ cp ssh.service /etc/avahi/services
 cp hosts /etc/avahi/
 cp sshd_config /etc/ssh/
 
+echo nameserver 8.8.8.8 >> /etc/resolvconf/resolv.conf.d/head
+echo nameserver 8.8.4.4 >> /etc/resolvconf/resolv.conf.d/head
+resolvconf --enable-updates
+resolvconf -u
+
+# Install FrOST Edge
 dpkg -i /frost-edge.deb
 rm /frost-edge.deb
+
+# Install Python Packages
+echo "Install Python Packages:"
+echo "   Install Boto3"
+pip3 install boto3
+echo "   Installing TQDM"
+pip3 install tqdm
 
 # install balena-io wifi-connect
 yes N | bash <(curl -L https://github.com/balena-io/wifi-connect/raw/master/scripts/raspbian-install.sh)
