@@ -5,6 +5,7 @@ cd /var/lib/frost;
 echo "Moving to /var/lib/frost and cloning repos";
 git clone https://github.com/fpga-open-speech-tools/deployment_manager.git;
 cd /var/lib/frost/deployment_manager;
+npm config set strict-ssl false;
 npm install;
 
 systemctl daemon-reload
