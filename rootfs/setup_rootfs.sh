@@ -15,6 +15,8 @@ apt update && apt upgrade -y
 echo
 echo "installing packages..."
 echo
+export DEBIAN_FRONTEND=noninteractive
+ln -fs /usr/share/zoneinfo/America/Denver /etc/localtime
 xargs -a <(awk '! /^ *(#|$)/' packages) -r -- apt -y --no-install-recommends install 
 
 # avahi config files need to be copied after avahi is installed
