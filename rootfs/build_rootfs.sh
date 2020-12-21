@@ -39,7 +39,14 @@ cp sources-$UBUNTU_VERSION.list $ROOT_DIR/sources.list
 cp ssh.service $ROOT_DIR/
 cp hosts $ROOT_DIR/
 cp sshd_config $ROOT_DIR/
-cp frost-edge_*_armhf.deb $ROOT_DIR/frost-edge.deb
+
+# Check for Frost Edge
+if [ -f frost-edge_*_armhf.deb ]; then
+    cp frost-edge_*_armhf.deb $ROOT_DIR/frost-edge.deb
+else
+    wget https://frost-release.s3-us-west-2.amazonaws.com/edge/frost-edge.deb
+    cp frost-edge.deb $ROOT_DIR/frost-edge.deb
+fi
 
 # mount stuff in the armhf rootfs
 sudo mount -t proc /proc $ROOT_DIR/proc
