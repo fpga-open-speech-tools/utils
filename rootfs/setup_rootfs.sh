@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# TODO: apt keeps complaining about our locale not being set; we should probably set it properly
-
 # add non-free sources so we can install the ralink wifi firmware
 cp sources.list /etc/apt/
 
