@@ -21,7 +21,6 @@ pipeline
                     {   dir("rootfs")
                         {
                             sh 'dos2unix docker_build.sh;'
-                            sh 'dos2unix build_rootfs.sh;'
                             sh 'chmod +x docker_build.sh;'
                             sh './docker_build.sh;'
                         }
