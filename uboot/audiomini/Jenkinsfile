@@ -8,7 +8,7 @@ pipeline
             // This is a temperoray place holder to have Jenkins Build the Complete Image
             steps
             {  
-                dir("u_boot/")
+                dir("u_boot/audiomini/")
                 { 
                     sh 'wget https://frost-release.s3-us-west-2.amazonaws.com/linux-images/audio-mini-artifacts/u-boot.img'
                     sh 'wget https://frost-release.s3-us-west-2.amazonaws.com/linux-images/audio-mini-artifacts/u-boot.scr'
@@ -19,7 +19,7 @@ pipeline
         {
             steps
             {
-                dir("u_boot/")
+                dir("u_boot/audiomini/")
                 {
                     archiveArtifacts artifacts: 'u-boot.img', fingerprint: true
                     archiveArtifacts artifacts: 'u-boot.scr', fingerprint: true
