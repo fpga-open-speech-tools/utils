@@ -15,8 +15,8 @@ ln -fs /usr/share/zoneinfo/America/Denver /etc/localtime
 xargs -a <(awk '! /^ *(#|$)/' packages) -r -- apt -y --no-install-recommends install 
 
 # avahi config files need to be copied after avahi is installed
-mv ssh.service /etc/avahi/services
-mv hosts /etc/avahi/
+# mv ssh.service /etc/avahi/services
+# mv hosts /etc/avahi/
 
 echo nameserver 8.8.8.8 >> /etc/resolvconf/resolv.conf.d/head
 echo nameserver 8.8.4.4 >> /etc/resolvconf/resolv.conf.d/head

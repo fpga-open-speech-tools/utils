@@ -37,15 +37,15 @@ echo "copying files to new rootfs..."
 cp packages $ROOT_DIR/
 
 # add non-free sources so we can install the ralink wifi firmware
-cp sources-$UBUNTU_VERSION.list $ROOT_DIR/etc/apt/sources.list
-cp ssh.service $ROOT_DIR/
-cp hosts $ROOT_DIR/
-cp sshd_config $ROOT_DIR/etc/ssh/
+mkdir -p $ROOT_DIR/etc/apt/ && cp sources-$UBUNTU_VERSION.list $ROOT_DIR/etc/apt/sources.list
+mkdir -p $ROOT_DIR/etc/avahi/services && cp ssh.service $ROOT_DIR/etc/avahi/services
+mkdir -p $ROOT_DIR/etc/avahi/ && cp hosts $ROOT_DIR/etc/avahi/
+mkdir -p $ROOT_DIR/etc/ssh/ && cp sshd_config $ROOT_DIR/etc/ssh/
 
 
 # Setup Network Manager to manage ethernet
-cp NetworkManager.conf $ROOT_DIR/etc/NetworkManager/
-cp 10-globally-managed-devices.conf $ROOT_DIR/usr/lib/NetworkManager/conf.d/10-globally-managed-devices.conf
+mkdir -p $ROOT_DIR/etc/NetworkManager/ && cp NetworkManager.conf $ROOT_DIR/etc/NetworkManager/
+mkdir -p $ROOT_DIR/usr/lib/NetworkManager/conf.d/ && cp 10-globally-managed-devices.conf $ROOT_DIR/usr/lib/NetworkManager/conf.d/10-globally-managed-devices.conf
 
 
 
