@@ -3,7 +3,7 @@ pipeline
     agent {label 'Ubuntu_20.04.1'}
     stages 
     {
-        stage('Build uBoot')
+        stage('Build Audio Mini Preloader')
         {
             // This is a temperoray place holder to have Jenkins Build the Complete Image
             steps
