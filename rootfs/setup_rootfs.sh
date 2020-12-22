@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# add non-free sources so we can install the ralink wifi firmware
-cp sources.list /etc/apt/
-
 echo 
 echo "updating packages..."
 echo
@@ -17,14 +14,9 @@ export DEBIAN_FRONTEND=noninteractive
 ln -fs /usr/share/zoneinfo/America/Denver /etc/localtime
 xargs -a <(awk '! /^ *(#|$)/' packages) -r -- apt -y --no-install-recommends install 
 
-# Setup Network Manager to manage ethernet
-mv NetworkManager.conf /etc/NetworkManager/
-mv /usr/lib/NetworkManager/conf.d/10-globally-managed-devices.conf
-
 # avahi config files need to be copied after avahi is installed
-cp ssh.service /etc/avahi/services
-cp hosts /etc/avahi/
-cp sshd_config /etc/ssh/
+mv ssh.service /etc/avahi/services
+mv hosts /etc/avahi/
 
 echo nameserver 8.8.8.8 >> /etc/resolvconf/resolv.conf.d/head
 echo nameserver 8.8.4.4 >> /etc/resolvconf/resolv.conf.d/head

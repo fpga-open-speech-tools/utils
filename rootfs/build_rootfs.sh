@@ -35,10 +35,19 @@ sudo cp /etc/resolv.conf $ROOT_DIR/etc/resolv.conf
 echo
 echo "copying files to new rootfs..."
 cp packages $ROOT_DIR/
-cp sources-$UBUNTU_VERSION.list $ROOT_DIR/sources.list
+
+# add non-free sources so we can install the ralink wifi firmware
+cp sources-$UBUNTU_VERSION.list $ROOT_DIR/etc/apt/sources.list
 cp ssh.service $ROOT_DIR/
 cp hosts $ROOT_DIR/
-cp sshd_config $ROOT_DIR/
+cp sshd_config $ROOT_DIR/etc/ssh/
+
+
+# Setup Network Manager to manage ethernet
+cp NetworkManager.conf $ROOT_DIR/etc/NetworkManager/
+cp 10-globally-managed-devices.conf $ROOT_DIR/usr/lib/NetworkManager/conf.d/10-globally-managed-devices.conf
+
+
 
 # Check for Frost Edge
 if [ -f frost-edge_*_armhf.deb ]; then
