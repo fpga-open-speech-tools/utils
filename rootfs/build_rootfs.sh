@@ -43,12 +43,6 @@ mkdir -p $ROOT_DIR/etc/avahi/ && cp hosts $ROOT_DIR/etc/avahi/
 mkdir -p $ROOT_DIR/etc/ssh/ && cp sshd_config $ROOT_DIR/etc/ssh/
 
 
-# Setup Network Manager to manage ethernet
-mkdir -p $ROOT_DIR/etc/NetworkManager/ && cp NetworkManager.conf $ROOT_DIR/etc/NetworkManager/
-mkdir -p $ROOT_DIR/usr/lib/NetworkManager/conf.d/ && cp 10-globally-managed-devices.conf $ROOT_DIR/usr/lib/NetworkManager/conf.d/10-globally-managed-devices.conf
-
-
-
 # Check for Frost Edge
 if [ -f frost-edge_*_armhf.deb ]; then
     cp frost-edge_*_armhf.deb $ROOT_DIR/frost-edge.deb
@@ -65,6 +59,10 @@ sudo mount -B /dev/pts $ROOT_DIR/dev/pts
 
 # copy the setup script into the armhf rootfs
 cp setup_rootfs.sh $ROOT_DIR/
+
+# Setup Network Manager to manage ethernet
+mkdir -p $ROOT_DIR/etc/NetworkManager/ && cp NetworkManager.conf $ROOT_DIR/etc/NetworkManager/
+mkdir -p $ROOT_DIR/usr/lib/NetworkManager/conf.d/ && cp 10-globally-managed-devices.conf $ROOT_DIR/usr/lib/NetworkManager/conf.d/10-globally-managed-devices.conf
 
 # chroot into the armhf rootfs and do the setup
 sudo chroot $ROOT_DIR ./setup_rootfs.sh
