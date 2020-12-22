@@ -17,6 +17,10 @@ export DEBIAN_FRONTEND=noninteractive
 ln -fs /usr/share/zoneinfo/America/Denver /etc/localtime
 xargs -a <(awk '! /^ *(#|$)/' packages) -r -- apt -y --no-install-recommends install 
 
+# Setup Network Manager to manage ethernet
+mv NetworkManager.conf /etc/NetworkManager/
+mv /usr/lib/NetworkManager/conf.d/10-globally-managed-devices.conf
+
 # avahi config files need to be copied after avahi is installed
 cp ssh.service /etc/avahi/services
 cp hosts /etc/avahi/
