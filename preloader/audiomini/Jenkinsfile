@@ -1,0 +1,38 @@
+pipeline
+{
+    agent {label 'Ubuntu_20.04.1'}
+    stages 
+    {
+        stage('Build uBoot')
+        {
+            // This is a temperoray place holder to have Jenkins Build the Complete Image
+            steps
+            {  
+                dir("preloader/audiomini/")
+                { 
+                    sh 'wget https://frost-release.s3-us-west-2.amazonaws.com/linux-images/audio-mini-artifacts/audiomini_preloader.bin'
+                }
+            }
+        }
+        stage('Archive')
+        {
+            steps
+            {
+                dir("preloader/audiomini/")
+                {
+                    archiveArtifacts artifacts: 'audiomini_preloader.bin', fingerprint: true
+                }
+            }
+        }
+        stage('Cleanup')
+        {
+            steps
+            {
+                deleteDir()
+                dir("${workspace}@tmp") {
+                    deleteDir()
+                }
+            }
+        } 
+    }
+}
