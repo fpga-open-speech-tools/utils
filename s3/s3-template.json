@@ -1,0 +1,65 @@
+{
+    "Parameters" : {
+        "s3BucketName" : {
+          "Description" : "S3 Bucket Name",
+          "Type" : "String"
+        }
+      },
+    "Resources": {
+        "S3Bucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "AccessControl": "PublicRead",
+                "BucketName": {
+                    "Ref": "s3BucketName"
+                },
+                "CorsConfiguration": {
+                    "CorsRules": [
+                        {
+                            "AllowedHeaders": [
+                                "*"
+                            ],
+                            "AllowedMethods": [
+                                "GET"
+                            ],
+                            "AllowedOrigins": [
+                                "*"
+                            ],
+                            "ExposedHeaders": [
+                                "Date"
+                            ],
+                            "MaxAge": "3600"
+                        }
+                    ]
+                }
+            }
+        },
+        "ReadOnlyAnonAccess" : {
+            "Type" : "AWS::S3::BucketPolicy",
+            "Properties" : {
+                "Bucket" : {
+                            "Ref": "s3BucketName"
+                        },
+                "PolicyDocument" :  {
+                    "Statement": [
+                        {
+                          "Sid":"PublicRead",
+                          "Effect":"Allow",
+                          "Principal": "*",
+                          "Action":["s3:GetObject","s3:GetObjectVersion"],
+                          "Resource":{ "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref": "s3BucketName" } , "/*" ]]}
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "BucketName": {
+            "Value": {
+                "Ref": "S3Bucket"
+            },
+            "Description": "Name of the sample Amazon S3 bucket with CORS enabled."
+        }
+    }
+}
