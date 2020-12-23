@@ -696,6 +696,8 @@ parser.add_argument('-n', dest='image_name', action='store',
                     default='somename.img', help='specifies the name of the image.')
 parser.add_argument('-f', dest='force_erase_image', action='store_true',
                     default=False, help='deletes the image file if exists')
+parser.add_argument('-w', dest='working_dir', action='store', default='.', 
+                    help='Directory to find required files as well build the image')
 args = parser.parse_args()
 
 # Only root can do this
@@ -707,6 +709,8 @@ if not is_user_root():
 part_entries = parse_all_parts_args(args.part_args)
 image_size = convert_size_from_unit(args.size)
 part_entries = check_and_update_part_entries(part_entries, image_size)
+
+os.chdir(args.working_dir)
 
 # we now have what we need
 create_image(args.image_name, image_size, part_entries, args.force_erase_image)
