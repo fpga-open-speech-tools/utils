@@ -14,7 +14,7 @@ The following guide will walk you through creating a FrOST S3 Bucket with correc
     - Click `Next`
 5. On the `Specify stack details` pages
     - Enter a stack name. This is the name of the CloudFormation Stack.
-    - Enter a bucket name. This is the name of the S3 Bucket that will be used by the FrOST Web App and it must conform to the [S3 Bucket Naming Rules](https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html#bucketnamingrules). This is the only time to change the name of the bucket. 
+    - Enter a bucket name. This is the name of the S3 Bucket that will be used by the FrOST Web App and it must conform to the [S3 Bucket Naming Rules](https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html#bucketnamingrules). This is the only time to change the name of the bucket. The FrOST Web App **DOES NOT** support `.` in the S3 Bucket Name, even though this is a valid bucket name.
     - Click `Next`
 6. On the `Configure Stack Options` page, leave the defaults and click `Next`
 7. On the `Review` Page, scroll to the bottom and click `Create stack`
