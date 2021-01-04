@@ -95,6 +95,7 @@ DEFAULT_CONFIG_PATH = '../config/'
 FIRMWARE_EXTENSIONS = ('.rbf', '.dtbo')
 DRIVER_EXTENSIONS = ('.ko')
 CONFIG_EXTENSIONS = ('.json')
+ALL_FROST_EXTENSIONS = CONFIG_EXTENSIONS + DRIVER_EXTENSIONS + FIRMWARE_EXTENSIONS
 HTTP_HEADERS = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
 """
@@ -263,7 +264,7 @@ def parseargs():
     return args
 
 
-def _get_file_info(s3objects, file_extensions):
+def _get_file_info(s3objects, file_extensions, include_extensions=True):
     """
     Get information about files in an s3 objects list.
 
@@ -277,6 +278,9 @@ def _get_file_info(s3objects, file_extensions):
 
     file_extensions : tuple
         File extensions to match keys against
+    
+    include_extensions : bool
+        If true include files with matching extensions, otherwise exclude files with matching extensions
 
     Returns
     -------
@@ -291,8 +295,12 @@ def _get_file_info(s3objects, file_extensions):
     The 'Key' attribute is of the form "some/directory/filename.extension". 
     """
     # Get firmware keys that end with any extension in file_extensions
-    keys = tuple(obj['Key'] for obj in s3objects
+    if include_extensions:
+        keys = tuple(obj['Key'] for obj in s3objects
                  if obj['Key'].endswith(file_extensions))
+    else:
+        keys = tuple(obj['Key'] for obj in s3objects
+                 if not(obj['Key'].endswith(file_extensions)))
 
     # If no keys matching file_extensions were found, exit early
     if not keys:
@@ -344,7 +352,7 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
         Print verbose output
     """
     project_name = s3directory.split('/')[-1].replace('-', '_')
-
+    
     # Create an s3 client that doesn't need/use aws credentials
     client = boto3.client('s3', region_name='us-west-2',
                           config=Config(signature_version=UNSIGNED))
@@ -387,6 +395,9 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
             os.mkdir(config_path)
 
         total_download_size += sum(config_files.sizes)
+
+    
+    userspace_driver_files = _get_file_info(objects, ALL_FROST_EXTENSIONS, False)
 
     # Set up a progress monitor
     show_bar = False
@@ -432,6 +443,19 @@ def main(s3bucket, s3directory, driver_path=DEFAULT_DRIVER_PATH,
 
             client.download_file(s3bucket, key, config_path + filename,
                                  Callback=progressMonitor)
+
+    # If there are other files, download them
+    if userspace_driver_files:
+        for key, filename in zip(userspace_driver_files.keys, userspace_driver_files.names):
+            progressMonitor.status = "downloading {}".format(key)
+
+            if verbose:
+                tqdm.write('Downloading file {} to {}...'.format(
+                    filename, config_path + filename))
+
+            client.download_file(s3bucket, key, config_path + filename,
+                                 Callback=progressMonitor)
+
     return (firmware_files)
 
 
