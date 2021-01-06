@@ -1,6 +1,9 @@
 #!/bin/bash
 # 1.0 - Clone the LinuxBootImageFileGenerator Repo
-git clone https://github.com/robseb/LinuxBootImageFileGenerator.git
+git clone https://github.com/fpga-open-speech-tools/LinuxBootImageFileGenerator.git
+cd LinuxBootImageFileGenerator/;
+git checkout automation-updates
+cd ..;
 
 # 3.0 - Copy DistroBlueprint.xml into LinuxBootImageFileGenerator
 cp DistroBlueprint.xml LinuxBootImageFileGenerator/;
@@ -81,4 +84,6 @@ fi
 echo "Copying Root File System to LinuxBootImageFileGenerator/Image_partitions/Pat_2_ext3"
 mv ubuntu-base/* LinuxBootImageFileGenerator/Image_partitions/Pat_2_ext3;
 
-cd LinuxBootImageFileGenerator; python3 LinuxBootImageGenerator.py
+cd LinuxBootImageFileGenerator; 
+python3 LinuxBootImageGenerator.py;
+mv LinuxDistro*.img audio-mini.img;
