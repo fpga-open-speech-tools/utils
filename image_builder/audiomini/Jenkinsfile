@@ -1,0 +1,52 @@
+pipeline
+{
+    agent none
+    stages
+    {
+        stage ('Ubuntu_20.04.1')
+        {
+            agent {label 'Ubuntu_20.04.1'}
+            stages 
+            {
+                // stage('Copy Frost Edge')
+                // {
+                //     steps
+                //     {   
+                //         copyArtifacts filter: 'frost-edge_*_armhf.deb', fingerprintArtifacts: true, projectName: 'Frost_Edge', selector: lastSuccessful(), target: 'rootfs'
+                //     }
+                // }
+                stage('Build Audio Mini Linux Image')
+                {
+                    steps
+                    {   dir("image_builder/audiomini")
+                        {
+                            sh 'chmod +x docker_build_audiomini.sh;'
+                            sh './docker_build_audiomini.sh;'
+                        }
+                    }
+                }
+                stage('Archive')
+                {
+                    steps
+                    {
+                        dir("image_builder/audiomini/")
+                        {
+                            sh 'zip audio-mini-image.zip audio-mini.img'
+                            archiveArtifacts artifacts: 'audio-mini-image.zip', fingerprint: true
+                        }
+                    }
+                }
+                stage('Cleanup')
+                {
+                    steps
+                    {
+                        deleteDir()
+                        dir("${workspace}@tmp") {
+                            deleteDir()
+                        }
+                    }
+                } 
+            }
+        }
+    }
+}
