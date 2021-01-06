@@ -31,7 +31,7 @@ pipeline
                     {
                         dir("rootfs/")
                         {
-                            archiveArtifacts artifacts: 'rootfs.tar.gz', fingerprint: true
+                            archiveArtifacts artifacts: 'frost_rootfs.tar.gz', fingerprint: true
                         }
                     }
                 }

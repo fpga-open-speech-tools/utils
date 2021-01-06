@@ -76,5 +76,5 @@ sudo umount -l $ROOT_DIR/sys
 # package up the rootfs
 echo
 echo "Archiving ubuntu-base rootfs as rootfs.tar.gz..."
-sudo tar -czf rootfs.tar.gz $ROOT_DIR
+sudo tar -czf frost_rootfs.tar.gz $ROOT_DIR
 
