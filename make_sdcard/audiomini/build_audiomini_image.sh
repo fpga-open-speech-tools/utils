@@ -1,19 +1,9 @@
 #!/bin/bash
 # 1.0 - Clone the LinuxBootImageFileGenerator Repo
-if [ -d LinuxBootImageFileGenerator ]; then
-    echo 'Using local Linux Boot Image File Generator'
-else
-    echo 'Cloning Linux Boot Image File Generator from https://github.com/robseb/LinuxBootImageFileGenerator'
-    git clone https://github.com/robseb/LinuxBootImageFileGenerator.git
-fi
+git clone https://github.com/robseb/LinuxBootImageFileGenerator.git
 
 # 3.0 - Copy DistroBlueprint.xml into LinuxBootImageFileGenerator
-if [ -f LinuxBootImageFileGenerator/DistroBlueprint.xml ]; then
-    echo 'Using local DistroBlueprint.xml in the LinuxBootImageFileGenerator Directory'
-else
-    echo 'Copying DistroBlueprint.xml into LinuxBootImageFileGenerator'
-    cp DistroBlueprint.xml LinuxBootImageFileGenerator/;
-fi
+cp DistroBlueprint.xml LinuxBootImageFileGenerator/;
 
 # 4.0 - Make the Image_partitions/Pat_1_vfat Folder
 mkdir -p LinuxBootImageFileGenerator/Image_partitions/Pat_1_vfat/;
