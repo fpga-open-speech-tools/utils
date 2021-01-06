@@ -1,8 +1,11 @@
 #!/bin/bash 
+cp ../frost_usd_card_blueprint.xml ./DistroBlueprint.xml
 
-# Build the FrOST Root FS with Docker
-docker build -t build_rootfs .
-docker run --name build_rootfs --privileged build_rootfs 
-docker cp build_rootfs:/tmp/rootfs.tar.gz .
-docker rm -f build_rootfs
-docker rmi -f build_rootfs
+# Build the Audio Mini Linux Image with Docker
+project="build_audiomini_image"
+
+docker build -t $project .
+docker run --name $project --privileged $project 
+docker cp $project:/tmp/audio-mini.img .
+docker rm -f $project
+docker rmi -f $project
