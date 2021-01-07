@@ -18,7 +18,7 @@ The Audio Mini Linux Image Builder generates the complete Audio Mini uSD Card Im
 ## Building the Audio Mini Linux Image with Docker
 1. Install [Docker for Windows](https://docs.docker.com/docker-for-windows/install/)
 2. Open Windows Subsystem for Linux and Navigate to `[FrOST Repos]\utils\image_builder\audiomini`
-3. Verify that the Docker Build Script is executable
+3. Make the Docker Build Script executable by running
     - `chmod +x docker_build_audiomini.sh`
 4. Run the Docker Build - Audio Mini Bash Script with
     - `./docker_build_audiomini.sh`
