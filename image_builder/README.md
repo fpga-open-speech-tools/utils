@@ -1,26 +1,17 @@
-# Overview
-This procedure describes how to create a working FrOST Audio Mini $\mu$SD card image using a [Python generation tool.](https://github.com/robseb/LinuxBootImageFileGenerator) NOTE: This README is a work in progress.
-# Prerequisites
+# FrOST Linux Image Builder
+The FrOST Linux Image Builder utility provide a simple way to generate a new uSD Linux Image for the various FrOST Hardware. The build script will check the local system for the required files and download the missing files from the FrOST Release S3 Bucket. More details about the specific builds can be found in the hardware folders.
 
-## Operating Systems
-Linux is recommended.  
+## Generated Images
+ - [Audio Mini](https://frost-release.s3-us-west-2.amazonaws.com/linux-images/audio-mini-image.zip)
 
-## Dependencies
-Python3 is required to run the generation script.
+## Image Builder Folder Structure
+	|-- audiomini                           # Files specific to the Audio Mini
+		|-- build_audiomini_image.sh            # Bash Script to build the Audio Mini Linux Image 
+		|-- docker_build_audiomini.sh           # Bash Script to build the Audio Mini Image with Docker
+		|-- Dockerfile                          # Dockerfile to define the Docker Container
+		|-- Jenkinsile                          # Jenkins Build Script
+		|-- ReadMe.md                           # Audio Mini Linux Image Build Instructions
+	|-- frost_usd_card_blueprint.xml        # The FrOST uSD Card Partition Structure
+	|-- README.md                           # Image Builder Read Me
 
-# Procedure
-1. Clone the [LinuxBootImageFileGenerator](https://github.com/robseb/LinuxBootImageFileGenerator) repository. [TODO: Fork the repo and make edits for fully automated builds]
-2. Run `python3 LinuxBootImageFileGenerator.py` and follow the command prompts to create the necessary folders.
-3. Copy the DistroBlueprint.xml from the FrOST utils folder into the LinuxBootImageFileGenerator directory
-4. Copy the following files into the `Image_partitions/Pat_1_vfat` directory
-	1. The device tree for the FPGA
-	2. The raw binary file for the FPGA design
-	3. The Linux kernel
-	4. The U-Boot script
-	5. The U-Boot image
-5. Copy the following file into the `Image_partitions/Pat_3_raw` directory
-	1. The the FPGA device's preloader
-6. Copy the desired filesystem into the `Image_partitions/Pat_2_ext3` directory
-	 1. This can be any filesystem the user desires.  For this procedure, it is assumed that the [build_rootfs.sh](https://github.com/fpga-open-speech-tools/utils/tree/make_sdcard_dev/rootfs) script was used to create an Ubuntu filesystem.
-7. Finally, execute the command `python3 LinuxBootImageFileGenerator.py` and press any key to pass through the prompts.
 
