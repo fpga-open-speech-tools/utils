@@ -25,6 +25,19 @@ pipeline
                                 build job: 'Frost_Edge'
                             }
                         }
+                        stage ('Image Builder - Audio Mini')
+                        {
+                            when {
+                                anyOf {
+                                    changeset "image_builder/*"
+                                    changeset "image_builder/audiomini/*"
+                                }
+                            }
+                            steps
+                            {
+                                build job: 'audiomini-linux-image'
+                            }
+                        }
                         stage('Frost Root File System')
                         {
                             when { changeset "rootfs/*"}
