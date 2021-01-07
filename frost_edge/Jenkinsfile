@@ -24,8 +24,7 @@ pipeline
                     {   dir("frost_edge")
                         {
                             sh 'mkdir -p web_app;'
-                            copyArtifacts filter: 'swap/NIH/FrOST_Web_App/OST-Webapp.zip', fingerprintArtifacts: true, projectName: 'FrOST Web App', selector: lastSuccessful(), target: 'web_app'
-                            sh 'unzip web_app/swap/NIH/FrOST_Web_App/OST-Webapp.zip'
+                            copyArtifacts filter: 'frost_web_app.zip', fingerprintArtifacts: true, projectName: 'FrOST Web App', selector: lastSuccessful(), target: 'web_app'
                         } 
                     }
                 }

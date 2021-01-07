@@ -1,0 +1,51 @@
+pipeline
+{
+    agent none
+    stages
+    {
+        stage ('Ubuntu_20.04.1')
+        {
+            agent {label 'Ubuntu_20.04.1'}
+            stages 
+            {
+                stage('Copy Frost Edge')
+                {
+                    steps
+                    {   
+                        copyArtifacts filter: 'frost-edge_*_armhf.deb', fingerprintArtifacts: true, projectName: 'Frost_Edge', selector: lastSuccessful(), target: 'rootfs'
+                    }
+                }
+                stage('Build Root File System')
+                {
+                    steps
+                    {   dir("rootfs")
+                        {
+                            sh 'chmod +x docker_build.sh;'
+                            sh './docker_build.sh;'
+                        }
+                    }
+                }
+                stage('Archive')
+                {
+                    steps
+                    {
+                        dir("rootfs/")
+                        {
+                            archiveArtifacts artifacts: 'frost_rootfs.tar.gz', fingerprint: true
+                        }
+                    }
+                }
+                stage('Cleanup')
+                {
+                    steps
+                    {
+                        deleteDir()
+                        dir("${workspace}@tmp") {
+                            deleteDir()
+                        }
+                    }
+                } 
+            }
+        }
+    }
+}

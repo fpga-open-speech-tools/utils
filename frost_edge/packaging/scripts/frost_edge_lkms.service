@@ -1,13 +1,12 @@
 [Unit]
-Description=Service to FrOST Web App
+Description=Service to Load the FrOST LKMs
 Wants=network-online.target
 After=network.target network-online.target
 
 [Service]
-Type=simple
-ExecStart=/bin/bash /usr/bin/frost_edge.sh
-Restart=on-failure
-RestartSec=1
+Type=oneshot
+ExecStart=/bin/bash /usr/bin/frost_edge_lkms.sh
+Restart=no
 User=root
 Group=root
 
