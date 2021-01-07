@@ -38,9 +38,6 @@ cp packages $ROOT_DIR/
 
 # add non-free sources so we can install the ralink wifi firmware
 mkdir -p $ROOT_DIR/etc/apt/ && cp sources-$UBUNTU_VERSION.list $ROOT_DIR/etc/apt/sources.list
-mkdir -p $ROOT_DIR/etc/avahi/services && cp ssh.service $ROOT_DIR/etc/avahi/services
-mkdir -p $ROOT_DIR/etc/avahi/ && cp hosts $ROOT_DIR/etc/avahi/
-mkdir -p $ROOT_DIR/etc/ssh/ && cp sshd_config $ROOT_DIR/etc/ssh/
 
 
 # Check for Frost Edge
@@ -60,12 +57,16 @@ sudo mount -B /dev/pts $ROOT_DIR/dev/pts
 # copy the setup script into the armhf rootfs
 cp setup_rootfs.sh $ROOT_DIR/
 
+# chroot into the armhf rootfs and do the setup
+sudo chroot $ROOT_DIR ./setup_rootfs.sh
+
 # Setup Network Manager to manage ethernet
 mkdir -p $ROOT_DIR/etc/NetworkManager/ && cp NetworkManager.conf $ROOT_DIR/etc/NetworkManager/
 mkdir -p $ROOT_DIR/usr/lib/NetworkManager/conf.d/ && cp 10-globally-managed-devices.conf $ROOT_DIR/usr/lib/NetworkManager/conf.d/10-globally-managed-devices.conf
 
-# chroot into the armhf rootfs and do the setup
-sudo chroot $ROOT_DIR ./setup_rootfs.sh
+mkdir -p $ROOT_DIR/etc/avahi/services && cp ssh.service $ROOT_DIR/etc/avahi/services
+mkdir -p $ROOT_DIR/etc/avahi/ && cp hosts $ROOT_DIR/etc/avahi/
+mkdir -p $ROOT_DIR/etc/ssh/ && cp sshd_config $ROOT_DIR/etc/ssh/
 
 # unmount directories in the armhf rootfs
 sudo umount -l $ROOT_DIR/dev/pts
