@@ -29,7 +29,7 @@ pipeline
                         {
                             when {
                                 anyOf {
-                                    changeset "image_builder/*"
+                                    changeset "image_builder/frost_usd_card_blueprint.xml"
                                     changeset "image_builder/audiomini/*"
                                 }
                             }
