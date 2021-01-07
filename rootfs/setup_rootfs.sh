@@ -23,6 +23,10 @@ echo nameserver 8.8.4.4 >> /etc/resolvconf/resolv.conf.d/head
 resolvconf --enable-updates
 resolvconf -u
 
+echo "Configuring netplan"
+echo "network:\n   version: 2\n  renderer: NetworkManager\n" > /etc/netplan/01-netowrk-manager-all.yaml
+netplan generate
+netplan apply
 # Install FrOST Edge
 dpkg -i /frost-edge.deb
 rm /frost-edge.deb

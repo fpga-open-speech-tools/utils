@@ -27,6 +27,7 @@ net-tools
 tftp
 ssh
 network-manager
+netplan.io
 curl
 avahi-daemon
 avahi-discover
