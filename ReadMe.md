@@ -12,6 +12,10 @@ FrOST Utilities
         |-- Jenkinsfile                     # Jenkins File to build the package
         |-- Install.md                      # Installation Steps
 
+    |-- json                            # MATLAB Functions to Read and Write JSON Files
+        |-- readjson.m
+        |-- writejson.m
+
     |-- power_controller                # Audio Blade Arduino Power Controller
         |--power_control.ino                # Arduino Code to turn the Audio Blade on and off with a power button
 
@@ -20,6 +24,10 @@ FrOST Utilities
         |-- awsdownloader.py
         |-- drivermgr
         |-- overlaymgr
+    
+    |-- s3                              # FrOST S3 CloudFormation Template Files
+        |-- README.md                       # Read Me Guide for using the FrOST S3 CloudFormation Template
+        |-- s3-template.json                # FrOST S3 CloudFormation Template
     
     |-- .gitattributes                  # Git Attributes File
     |-- .gitignore                      # Git Ignore File
