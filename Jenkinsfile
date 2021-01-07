@@ -25,6 +25,14 @@ pipeline
                                 build job: 'Frost_Edge'
                             }
                         }
+                        stage('Frost Root File System')
+                        {
+                            when { changeset "rootfs/*"}
+                            steps 
+                            {
+                                build job: 'Frost_RootFS'
+                            }
+                        }
                     }
                 }
                 stage('Cleanup')

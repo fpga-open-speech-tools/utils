@@ -1,0 +1,40 @@
+# text editors
+vim
+nano
+emacs-nox
+
+# build/dev tools
+build-essential
+kmod
+busybox
+python2
+python3
+python3-pip
+nodejs
+npm
+git
+sudo
+less
+
+python-avahi
+python-dbus
+python-gi
+
+# networking
+iproute2
+iputils-ping
+net-tools
+tftp
+ssh
+network-manager
+netplan.io
+curl
+avahi-daemon
+avahi-discover
+avahi-utils
+isc-dhcp-client
+resolvconf   
+
+# misc
+bash-completion
+firmware-ralink
