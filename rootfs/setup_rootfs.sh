@@ -24,7 +24,7 @@ resolvconf --enable-updates
 resolvconf -u
 
 echo "Configuring netplan"
-echo "network:\n   version: 2\n   renderer: NetworkManager\n" > /etc/netplan/01-netowrk-manager-all.yaml
+echo -e "network:\n   version: 2\n   renderer: NetworkManager\n" > /etc/netplan/01-netowrk-manager-all.yaml
 netplan generate
 netplan apply
 # Install FrOST Edge
