@@ -1,9 +1,6 @@
 #!/bin/bash
 # 1.0 - Clone the LinuxBootImageFileGenerator Repo
 git clone https://github.com/fpga-open-speech-tools/LinuxBootImageFileGenerator.git
-cd LinuxBootImageFileGenerator/;
-git checkout automation-updates
-cd ..;
 
 # 3.0 - Copy DistroBlueprint.xml into LinuxBootImageFileGenerator
 cp DistroBlueprint.xml LinuxBootImageFileGenerator/;
