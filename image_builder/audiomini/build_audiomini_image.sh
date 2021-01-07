@@ -1,13 +1,14 @@
 #!/bin/bash
-# 1.0 - Clone the LinuxBootImageFileGenerator Repo
+# Clone the LinuxBootImageFileGenerator Repo
 git clone https://github.com/fpga-open-speech-tools/LinuxBootImageFileGenerator.git
 
-# 3.0 - Copy DistroBlueprint.xml into LinuxBootImageFileGenerator
+# Copy DistroBlueprint.xml into LinuxBootImageFileGenerator
 cp DistroBlueprint.xml LinuxBootImageFileGenerator/;
 
-# 4.0 - Make the Image_partitions/Pat_1_vfat Folder
+# Make the Image_partitions/Pat_1_vfat Folder
 mkdir -p LinuxBootImageFileGenerator/Image_partitions/Pat_1_vfat/;
-# 4.1 - Check for the Audio Mini DTB
+
+# Check for the Audio Mini DTB
 if [ -f soc_system.dtb ]; then
     echo 'Using the local Audio Mini DTB.'
 else
@@ -16,7 +17,7 @@ else
 fi
 cp soc_system.dtb LinuxBootImageFileGenerator/Image_partitions/Pat_1_vfat/;
 
-# 4.2 - Check for the Audio Mini Raw Binary File
+# Check for the Audio Mini Raw Binary File
 if [ -f soc_system.rbf ]; then
     echo 'Using the local Audio Mini RBF.'
 else
@@ -25,7 +26,7 @@ else
 fi
 cp soc_system.rbf LinuxBootImageFileGenerator/Image_partitions/Pat_1_vfat/;
 
-# 4.3 - Check for the zImage
+# Check for the zImage
 if [ -f zImage ]; then
     echo 'Using the local zImage.'
 else
@@ -34,7 +35,7 @@ else
 fi
 cp zImage LinuxBootImageFileGenerator/Image_partitions/Pat_1_vfat/;
 
-# 4.4 - Check for the Audio Mini uBoot Source
+# Check for the Audio Mini uBoot Source
 if [ -f u-boot.scr ]; then
     echo 'Using the local Audio Mini uBoot Source.'
 else
@@ -43,7 +44,7 @@ else
 fi
 cp u-boot.scr LinuxBootImageFileGenerator/Image_partitions/Pat_1_vfat/;
 
-# 4.5 - Check for the Audio Mini uBoot Image
+# Check for the Audio Mini uBoot Image
 if [ -f u-boot.img ]; then
     echo 'Using the local Audio Mini uBoot Image.'
 else
@@ -52,9 +53,9 @@ else
 fi
 cp u-boot.img LinuxBootImageFileGenerator/Image_partitions/Pat_1_vfat/;
 
-# 5.0 - Make the Image_partitions/Pat_3_raw Folder
+# Make the Image_partitions/Pat_3_raw Folder
 mkdir -p LinuxBootImageFileGenerator/Image_partitions/Pat_3_raw;
-# 5.1 - Check for the Audio Mini Preloader
+# Check for the Audio Mini Preloader
 if [ -f audiomini_preloader.bin ]; then
     echo 'Using the local Audio Mini Preloader.'
 else
@@ -63,9 +64,9 @@ else
 fi
 cp audiomini_preloader.bin LinuxBootImageFileGenerator/Image_partitions/Pat_3_raw;
 
-# 6.0 - Make the Image_partitions/Pat_2_ext3 Folder
+# Make the Image_partitions/Pat_2_ext3 Folder
 mkdir -p LinuxBootImageFileGenerator/Image_partitions/Pat_2_ext3;
-# 6.1 - Check for the Root File System
+# Check for the Root File System
 if [ -d ubuntu-base ]; then
     echo 'Using the local extracted file system - ubuntu-base.'
 else
