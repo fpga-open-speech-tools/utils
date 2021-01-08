@@ -3,3 +3,4 @@
 *.dtbo
 **/.vscode
 **/__pycache__/**
+image_builder/audiomini/DistroBlueprint.xml

@@ -2,15 +2,25 @@
 FrOST Utilities
 
 ## Folder Structure
-    |-- frost_edge                      # Frost Edge Packager
-        |-- packaging                       # Packaging Files
-            |-- debian                          # Debian Packaging Files
-            |-- scripts                         # Frost Edge Scripts
-                |-- frost_edge.service              # Frost Edge Service that calls frost_edge.sh on boot
-                |-- frost_edge.sh                   # Bash Script that starts the web app and node server
-            |-- makefile                        # Makefile to build the package
-        |-- Jenkinsfile                     # Jenkins File to build the package
-        |-- Install.md                      # Installation Steps
+    |-- frost_edge                          # Frost Edge Packager
+        |-- packaging                           # Packaging Files
+            |-- debian                              # Debian Packaging Files
+            |-- scripts                             # Frost Edge Scripts
+                |-- frost_edge.service                  # Frost Edge Service that calls frost_edge.sh on boot
+                |-- frost_edge.sh                       # Bash Script that starts the web app and node server
+            |-- makefile                            # Makefile to build the package
+        |-- Jenkinsfile                         # Jenkins File to build the package
+        |-- Install.md                          # Installation Steps
+
+    |-- image_builder                       # Files and Scripts required to build the FrOST Linux Images
+        |-- audiomini                           # Files specific to the Audio Mini
+            |-- build_audiomini_image.sh            # Bash Script to build the Audio Mini Linux Image 
+            |-- docker_build_audiomini.sh           # Bash Script to build the Audio Mini Image with Docker
+            |-- Dockerfile                          # Dockerfile to define the Docker Container
+            |-- Jenkinsile                          # Jenkins Build Script
+            |-- ReadMe.md                           # Audio Mini Linux Image Build Instructions
+        |-- frost_usd_card_blueprint.xml        # The FrOST uSD Card Partition Structure
+        |-- README.md                           # Image Builder Read Me
 
     |-- json                            # MATLAB Functions to Read and Write JSON Files
         |-- readjson.m

@@ -1,0 +1,88 @@
+pipeline
+{
+    agent none
+    stages
+    {
+        stage ('Ubuntu_20.04.1')
+        {
+            agent {label 'Ubuntu_20.04.1'}
+            stages 
+            {
+                stage('Copy Audio Mini Passthrough RBF')
+                {
+                    steps
+                    {   
+                        copyArtifacts filter: 'soc_system.rbf', fingerprintArtifacts: true, projectName: 'DE10_AudioMini_Passthrough', selector: lastSuccessful(), target: 'image_builder/audiomini/'
+                    }
+                }
+                
+                stage('Copy Frost Linux Kernel')
+                {
+                    steps
+                    {   
+                        copyArtifacts filter: 'zImage', fingerprintArtifacts: true, projectName: 'Linux_Kernel', selector: lastSuccessful(), target: 'image_builder/audiomini/'
+                    }
+                }
+                
+                stage('Copy Audio Mini uBoot')
+                {
+                    steps
+                    {   
+                        copyArtifacts filter: 'u-boot.scr', fingerprintArtifacts: true, projectName: 'audiomini-uboot', selector: lastSuccessful(), target: 'image_builder/audiomini/'
+                        copyArtifacts filter: 'u-boot.img', fingerprintArtifacts: true, projectName: 'audiomini-uboot', selector: lastSuccessful(), target: 'image_builder/audiomini/'
+                    }
+                }
+
+                stage('Copy Audio Mini Preloader')
+                {
+                    steps
+                    {   
+                        copyArtifacts filter: 'audiomini_preloader.bin', fingerprintArtifacts: true, projectName: 'audiomini-preloader', selector: lastSuccessful(), target: 'image_builder/audiomini/'
+                    }
+                }
+
+                stage('Copy Frost Root File System')
+                {
+                    steps
+                    {   
+                        copyArtifacts filter: 'frost_rootfs.tar.gz', fingerprintArtifacts: true, projectName: 'Frost_RootFS', selector: lastSuccessful(), target: 'image_builder/audiomini/'
+                    }
+                }
+
+                stage('Build Audio Mini Linux Image')
+                {
+                    steps
+                    {   dir("image_builder/audiomini")
+                        {
+                            sh 'chmod +x docker_build_audiomini.sh;'
+                            sh './docker_build_audiomini.sh;'
+                        }
+                    }
+                }
+
+                stage('Archive')
+                {
+                    steps
+                    {
+                        dir("image_builder/audiomini/")
+                        {
+                            sh 'zip audio-mini-image.zip audio-mini.img'
+                            archiveArtifacts artifacts: 'audio-mini-image.zip', fingerprint: true
+                        }
+                    }
+                }
+
+                stage('Cleanup')
+                {
+                    steps
+                    {
+                        deleteDir()
+                        dir("${workspace}@tmp") {
+                            deleteDir()
+                        }
+                    }
+                } 
+            }
+        }
+    }
+}
