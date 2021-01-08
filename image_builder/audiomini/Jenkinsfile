@@ -12,7 +12,7 @@ pipeline
                 {
                     steps
                     {   
-                        copyArtifacts filter: 'soc_system.rbf', fingerprintArtifacts: true, projectName: 'Q18P0_DE10_AudioMini_Passthrough', selector: lastSuccessful(), target: 'image_builder/audiomini/'
+                        copyArtifacts filter: 'soc_system.rbf', fingerprintArtifacts: true, projectName: 'DE10_AudioMini_Passthrough', selector: lastSuccessful(), target: 'image_builder/audiomini/'
                     }
                 }
                 
