@@ -8,6 +8,14 @@ pipeline
             agent {label 'Ubuntu_20.04.1'}
             stages 
             {
+                stage('Copy Audio Mini Passthrough RBF')
+                {
+                    steps
+                    {   
+                        copyArtifacts filter: 'soc_system.rbf', fingerprintArtifacts: true, projectName: 'Q18P0_DE10_AudioMini_Passthrough', selector: lastSuccessful(), target: 'image_builder/audiomini/'
+                    }
+                }
+                
                 stage('Copy Frost Linux Kernel')
                 {
                     steps
