@@ -3,4 +3,4 @@
 *.dtbo
 **/.vscode
 **/__pycache__/**
-make_sdcard/audiomini/DistroBlueprint.xml
+image_builder/audiomini/DistroBlueprint.xml
