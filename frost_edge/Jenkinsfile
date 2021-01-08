@@ -14,7 +14,7 @@ pipeline
                     {   dir("frost_edge")
                         {
                             sh 'mkdir -p lkms;'
-                            copyArtifacts filter: 'FE_AD1939.ko, FE_AD7768_4.ko, FE_PGA2505.ko, FE_TPA613A2.ko', fingerprintArtifacts: true, projectName: 'Frost_Component_Library', selector: lastSuccessful(), target: 'lkms'
+                            copyArtifacts filter: 'FE_AD1939.ko, FE_AD7768_4.ko, FE_PGA2505.ko, FE_TPA613A2.ko', fingerprintArtifacts: true, projectName: 'Linux_LKMs', selector: lastSuccessful(), target: 'lkms'
                         }
                     }
                 }
