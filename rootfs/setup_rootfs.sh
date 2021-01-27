@@ -55,7 +55,7 @@ echo
 # TODO: we really should not be using root for everything
 #       we should create a normal user and disable the root account, 
 #       or at least give it a strong password...
-echo "root:root" | chpasswd
+echo "root:frost1234" | chpasswd
 
 # we're done; exit the chroot
 echo "done setting up rootfs..."
