@@ -51,10 +51,8 @@ curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin
 echo
 echo "setting up user account..."
 echo
+
 # setup our root user
-# TODO: we really should not be using root for everything
-#       we should create a normal user and disable the root account, 
-#       or at least give it a strong password...
 echo "root:frost1234" | chpasswd
 
 # we're done; exit the chroot
